@@ -10,6 +10,7 @@ public class Player {
     private User user;
     private int currentBalance;
     private int currentBid;
+    private boolean inGame;
     private List<ClassicCard> cards;
     private PokerHandResult handResult;
     private Integer currentOrder;
@@ -17,6 +18,7 @@ public class Player {
     public Player(User user, int currentBalance) {
         this.user = user;
         this.currentBalance = currentBalance;
+        this.inGame = true;
     }
 
     public void addBalance(int diff){

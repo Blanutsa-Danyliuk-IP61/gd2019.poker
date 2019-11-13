@@ -1,6 +1,7 @@
 package gd2019.poker.model;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Round {
 
@@ -10,7 +11,6 @@ public class Round {
     private List<ClassicCard> allCards;
     private List<ClassicCard> tableCards;
     private Game game;
-    private List<RoundBank> banks;
 
     public Round(List<Player> players, Game game) {
         this.players = players;
@@ -58,7 +58,7 @@ public class Round {
     }
 
     public void calculateBalance(){
-        for (Player player : players) {
+        for (Player player : getPlayersInGame()) {
 
         }
     }
@@ -73,6 +73,11 @@ public class Round {
 
     private ClassicCard spreadCard(){
         return allCards.remove(0);
+    }
+
+    private List<Player> getPlayersInGame(){
+        players.sort(Comparator.comparing(Player::getHandResult).reversed());
+        return players.stream().filter(Player::isInGame).collect(Collectors.toList());
     }
 
 }
