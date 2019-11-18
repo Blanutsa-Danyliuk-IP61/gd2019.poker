@@ -29,4 +29,8 @@ public class ClassicCard {
         this.rank = rank;
     }
 
+    @Override
+    public String toString() {
+        return new StringBuilder().append(suite).append(" ").append(rank).toString();
+    }
 }

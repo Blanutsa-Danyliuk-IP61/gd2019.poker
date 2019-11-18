@@ -4,11 +4,12 @@ import lombok.Data;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class Game {
 
-    private static final int DEFAULT_BALANCE = 100;
+    private static final int DEFAULT_BALANCE = 1000;
     private static final int DEFAULT_SMALL_BLIND = 25;
     private static final int DEFAULT_BIG_BLIND = 10;
 
@@ -34,9 +35,8 @@ public class Game {
 
     public void start(){
         do {
-            Round round = new Round(players, this);
+            Round round = new Round(this);
             rounds.add(round);
-            round.finish();
             recalculateBlinds();
         } while (haveNotWinner());
     }
@@ -51,13 +51,11 @@ public class Game {
     }
 
     private boolean haveNotWinner(){
-        int playersWithMoney = 0;
-        for(Player user: players){
-            if(user.isNonZeroBalance()){
-                playersWithMoney++;
-            }
-        }
-        return playersWithMoney > 1;
+        return getPlayersActiveInGame().size() == 1;
+    }
+
+    public List<Player> getPlayersActiveInGame(){
+        return players.stream().filter(Player::getActiveInGame).collect(Collectors.toList());
     }
 
 }

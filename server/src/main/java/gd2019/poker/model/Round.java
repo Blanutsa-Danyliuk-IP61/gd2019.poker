@@ -1,47 +1,44 @@
 package gd2019.poker.model;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Round {
 
     private static final PokerHandEval eval = PokerHandEval.defaultEvaluator();
 
     private List<Player> players;
-    private List<ClassicCard> allCards;
+    private DeckOfCards deckOfCards;
     private List<ClassicCard> tableCards;
     private Game game;
 
-    public Round(List<Player> players, Game game) {
-        this.players = players;
+    public Round(Game game) {
+        this.players = game.getPlayersActiveInGame();
         this.game = game;
-        allCards = new LinkedList<>();
-        for(Suite suite: Suite.values()){
-            for(int rank = ClassicCard.RANK_2; rank <= ClassicCard.RANK_ACE; rank++){
-                allCards.add(new ClassicCard(suite,rank));
-            }
-        }
-        Collections.shuffle(allCards);
+        this.deckOfCards = new DeckOfCards();
         for(Player player: players){
-            player.setCards(spreadCards(2));
+            player.setCards(deckOfCards.spread(2));
         }
-        tableCards = spreadCards(5);
+        tableCards = deckOfCards.spread(2);
+        for(int i = 0; i < 3; i++){
+            round();
+        }
+        finish();
     }
 
     public void round(){
+        tableCards.add(deckOfCards.spread());
         for (Player player : players) {
-
+            int bid = game.getSmallBlind();
+            player.setCurrentBalance(player.getCurrentBalance() - bid);
+            player.setCurrentBid(player.getCurrentBid() + bid);
         }
     }
 
-    public void finish(){
+    private void finish(){
         calculateHandResults();
         sortByHandResults();
+        calculatePrize();
         calculateBalance();
-        for (Player player : players) {
-            System.out.println(player.getUser().getName() + " " + player.getHandResult());
-        }
-        System.out.println("Winner " + players.get(0).getUser().getName());
     }
 
     public void calculateHandResults(){
@@ -57,27 +54,32 @@ public class Round {
         players.sort(Comparator.comparing(Player::getHandResult).reversed());
     }
 
+    public void calculatePrize(){
+        for(Player player: players){
+            if(player.getActiveInRound()){
+                int playerPrize = possiblePrize(player);
+                player.setPrize(playerPrize);
+                players.forEach(p -> p.setCurrentBid(Math.max(0, p.getCurrentBid()-playerPrize)));
+            } else {
+                player.setPrize(0);
+            }
+        }
+    }
+
+    public int possiblePrize(Player player1){
+        int possiblePrize = 0;
+        int player1Bid = player1.getCurrentBid();
+        for (Player player2: players) {
+            int player2Bid = player2.getCurrentBid();
+            possiblePrize += Math.min(player1Bid, player2Bid);
+        }
+        return possiblePrize;
+    }
+
     public void calculateBalance(){
-        for (Player player : getPlayersInGame()) {
-
-        }
-    }
-
-    private List<ClassicCard> spreadCards(int count){
-        List<ClassicCard> cards = new ArrayList<>();
-        for(int i = 0; i < count; i++){
-            cards.add(spreadCard());
-        }
-        return cards;
-    }
-
-    private ClassicCard spreadCard(){
-        return allCards.remove(0);
-    }
-
-    private List<Player> getPlayersInGame(){
-        players.sort(Comparator.comparing(Player::getHandResult).reversed());
-        return players.stream().filter(Player::isInGame).collect(Collectors.toList());
+        players.forEach(p -> {
+            p.calculateBalanceAfterRound();
+        });
     }
 
 }
