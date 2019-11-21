@@ -1,5 +1,6 @@
 package gd2019.poker.model;
 
+import gd2019.poker.model.dto.PlayerDTO;
 import lombok.Data;
 
 import java.util.List;
@@ -33,6 +34,14 @@ public class Player {
         if(activeInRound){
 
         }
+    }
+
+    public PlayerDTO toDTO(){
+        return PlayerDTO.builder()
+                .name(user.getName())
+                .balance(currentBalance)
+                .bid(currentBid)
+                .build();
     }
 
 }

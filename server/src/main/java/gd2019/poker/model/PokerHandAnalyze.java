@@ -1,20 +1,28 @@
 package gd2019.poker.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * A helper class to analyze ranks and suits for an array of {@link ClassicCard}s. Create new using the static method {@link #analyze(ClassicCard...)}
  */
 public class PokerHandAnalyze {
 
-    private final int[] ranks = new int[ClassicCard.RANK_ACE];
-    private final int[] suites = new int[Suite.values().length];
+    private Map<Rank, Integer> rankQuantities;
+    private Map<Suite, Integer> suiteQuantities;
     private final ClassicCard[] cards;
 
     private PokerHandAnalyze(ClassicCard[] cards2) {
         this.cards = Arrays.copyOf(cards2, cards2.length);
+
+        rankQuantities = new HashMap<>();
+        for (Rank rank: Rank.values()) {
+            rankQuantities.put(rank, 0);
+        }
+
+        suiteQuantities = new HashMap<>();
+        for(Suite suite: Suite.values()){
+            suiteQuantities.put(suite, 0);
+        }
     }
     /**
      * Create a new instance and analyze the provided cards
@@ -24,14 +32,23 @@ public class PokerHandAnalyze {
     public static PokerHandAnalyze analyze(ClassicCard... cards) {
         PokerHandAnalyze hand = new PokerHandAnalyze(cards);
         for (ClassicCard card : cards) {
-            hand.ranks[card.getRank() - 1]++;
-            hand.suites[card.getSuite().ordinal()]++;
+            Suite suite = card.getSuite();
+            Integer suiteQuantity = hand.suiteQuantities.get(suite);
+            hand.suiteQuantities.put(suite, suiteQuantity+1);
+
+            Rank rank = card.getRank();
+            Integer rankQuantity = hand.rankQuantities.get(rank);
+            hand.rankQuantities.put(rank, rankQuantity+1);
         }
         return hand;
     }
 
-    public int[] getRanks() {
-        return ranks;
+    public Map<Rank, Integer> getRankQuantities() {
+        return rankQuantities;
+    }
+
+    public Map<Suite, Integer> getSuiteQuantities() {
+        return suiteQuantities;
     }
 
     public ClassicCard[] getCards() {

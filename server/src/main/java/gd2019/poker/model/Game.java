@@ -19,6 +19,7 @@ public class Game {
     private int bigBlindIndex;
     private int smallBlind;
     private int bigBlind;
+    private String status;
 
     public Game(List<User> users) {
         players = new LinkedList<>();

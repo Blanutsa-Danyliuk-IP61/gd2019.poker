@@ -107,7 +107,7 @@ public class PokerHandResult implements Comparable<PokerHandResult> {
         int[] result = new int[cards.length];
         Arrays.sort(skip);
         for (int i = 0; i < cards.length; i++) {
-            int rank = cards[i].getRank();
+            int rank = cards[i].getRank().getValue();
             // Check if we should skip this rank in the kicker-data.
             if (Arrays.binarySearch(skip, rank) >= 0)
                 continue;

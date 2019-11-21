@@ -1,5 +1,6 @@
 package gd2019.poker.model;
 
+import gd2019.poker.model.dto.CardDTO;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -8,7 +9,7 @@ import java.util.Objects;
 public class ClassicCard {
 
     private final Suite suite;
-    private final int rank;
+    private final Rank rank;
 
     public static final int RANK_2 = 2;
     public static final int RANK_3 = 3;
@@ -26,7 +27,14 @@ public class ClassicCard {
 
     public ClassicCard(Suite suite, int rank) {
         this.suite = Objects.requireNonNull(suite, "Suite cannot be null");
-        this.rank = rank;
+        this.rank = Rank.values()[rank-2];
+    }
+
+    public CardDTO toDTO(){
+        return CardDTO.builder()
+                .suite(suite)
+                .rank(rank)
+                .build();
     }
 
     @Override

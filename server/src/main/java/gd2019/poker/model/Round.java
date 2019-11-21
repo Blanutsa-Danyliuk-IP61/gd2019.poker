@@ -1,7 +1,10 @@
 package gd2019.poker.model;
 
+import lombok.Getter;
+
 import java.util.*;
 
+@Getter
 public class Round {
 
     private static final PokerHandEval eval = PokerHandEval.defaultEvaluator();

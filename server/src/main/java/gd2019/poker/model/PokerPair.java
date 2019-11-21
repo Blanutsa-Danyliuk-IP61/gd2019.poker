@@ -3,6 +3,7 @@ package gd2019.poker.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Checks for PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND, and FULL_HOUSE. Returns HIGH_CARD if nothing better was found.
@@ -14,12 +15,14 @@ public class PokerPair implements PokerHandResultProducer {
         List<PokerHandResult> results = new ArrayList<>();
         List<PokerHandResult> pairs = new ArrayList<>();
         List<PokerHandResult> threeOfAKinds = new ArrayList<>();
-        int[] ranks = analyze.getRanks();
+        Map<Rank, Integer> rankQuantities = analyze.getRankQuantities();
+        Rank[] eRanks = Rank.values();
 
-        for (int index = ranks.length - 1; index >= 0; index--) {
-            int count = ranks[index];
+        for (int index = eRanks.length-1; index >= 0; index--) {
+            Rank rank = eRanks[index];
+            int count = rankQuantities.get(rank);
             if (count == 4) {
-                results.add(new PokerHandResult(PokerHandType.FOUR_OF_A_KIND, index + 1, 0, analyze.getCards(), 1));
+                results.add(new PokerHandResult(PokerHandType.FOUR_OF_A_KIND, index + 2, 0, analyze.getCards(), 1));
             }
 
             // If there already exists some four of a kinds, then there's no need to check three of a kinds or pairs.
@@ -27,10 +30,10 @@ public class PokerPair implements PokerHandResultProducer {
                 continue;
 
             if (count == 3) {
-                threeOfAKinds.add(new PokerHandResult(PokerHandType.THREE_OF_A_KIND, index + 1, 0, analyze.getCards(), 2));
+                threeOfAKinds.add(new PokerHandResult(PokerHandType.THREE_OF_A_KIND, index + 2, 0, analyze.getCards(), 2));
             }
             else if (count == 2) {
-                pairs.add(new PokerHandResult(PokerHandType.PAIR, index + 1, 0, analyze.getCards(), 3));
+                pairs.add(new PokerHandResult(PokerHandType.PAIR, index + 2, 0, analyze.getCards(), 3));
             }
         }
 
