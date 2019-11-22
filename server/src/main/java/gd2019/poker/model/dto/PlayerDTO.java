@@ -12,12 +12,4 @@ public class PlayerDTO {
     private Integer balance;
     private Integer bid;
 
-    public static PlayerDTO toDTO(Player player){
-        return PlayerDTO.builder()
-                .name(player.getUser().getName())
-                .balance(player.getCurrentBalance())
-                .bid(player.getCurrentBid())
-                .build();
-    }
-
 }

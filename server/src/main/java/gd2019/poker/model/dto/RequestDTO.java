@@ -21,17 +21,4 @@ public class RequestDTO {
     private List<CardDTO> tableCards;
     private List<CardDTO> playerCards;
 
-    public static RequestDTO toDTO(Player player, Round round){
-        List<Player> opponents = round.getPlayers();
-            opponents.remove(player);
-        return RequestDTO.builder()
-                .userID(player.getUser().getId())
-                .opponents(opponents.stream().map(Player::toDTO).collect(Collectors.toList()))
-                .player(player.toDTO())
-                .status(round.getGame().getStatus())
-                .tableCards(round.getTableCards().stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
-                .playerCards(player.getCards().stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
-                .build();
-    }
-
 }

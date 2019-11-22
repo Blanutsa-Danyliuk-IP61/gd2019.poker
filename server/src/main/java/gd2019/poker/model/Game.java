@@ -2,6 +2,7 @@ package gd2019.poker.model;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,22 +20,38 @@ public class Game {
     private int bigBlindIndex;
     private int smallBlind;
     private int bigBlind;
-    private String status;
+    private GameStatus status;
 
-    public Game(List<User> users) {
-        players = new LinkedList<>();
+    public Game(){
+        this.players = new LinkedList<>();
+    }
+
+    public Game(List<Player> players) {
+        this.players = players;
+        players.forEach(p -> p.setCurrentGame(this));
         rounds = new LinkedList<>();
         smallBlindIndex = 0;
         bigBlindIndex = 1;
         smallBlind = DEFAULT_SMALL_BLIND;
         bigBlind = DEFAULT_BIG_BLIND;
-        for(User user : users){
-            Player player = new Player(user, DEFAULT_BALANCE);
-            players.add(player);
-        }
+    }
+
+    public void addPlayer(Player player){
+        players.add(player);
+        player.setStatus(PlayerStatus.waiting);
+        player.setCurrentGame(this);
+    }
+
+    public void removePlayer(Player player){
+        players.remove(player);
+        player.setCurrentGame(null);
     }
 
     public void start(){
+        for (Player player: players) {
+            player.setStatus(PlayerStatus.playing);
+        }
+        status = GameStatus.active;
         do {
             Round round = new Round(this);
             rounds.add(round);
@@ -57,6 +74,10 @@ public class Game {
 
     public List<Player> getPlayersActiveInGame(){
         return players.stream().filter(Player::getActiveInGame).collect(Collectors.toList());
+    }
+
+    public Round getCurrentRound(){
+        return rounds.get(rounds.size()-1);
     }
 
 }

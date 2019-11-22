@@ -1,7 +1,8 @@
 package gd9.poker.poker;
 
 import gd2019.poker.model.Game;
-import gd2019.poker.model.User;
+import gd2019.poker.model.Player;
+import gd2019.poker.service.GameService;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -12,11 +13,11 @@ public class PokerGameTest {
     @Test
     public void moreCards() {
 
-        User user1 = new User("Dimon");
-        User user2 = new User("Mykola");
-        List<User> users = Arrays.asList(user1, user2);
+        Player user1 = new Player("Dimon");
+        Player user2 = new Player("Mykola");
+        List<Player> players = Arrays.asList(user1, user2);
 
-        Game game = new Game(users);
+        Game game = new Game(players);
         game.start();
 
     }
