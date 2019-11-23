@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @Data
 public class Player {
 
-    private static final int DEFAULT_BALANCE = 100;
     private static final String DEFAULT_NAME = "Player ";
 
     private UUID id;
@@ -26,7 +25,6 @@ public class Player {
     private Boolean activeInGame;
     private List<ClassicCard> cards;
     private PokerHandResult handResult;
-    private Integer currentOrder;
 
     public Player(UUID id){
         this.id = id;
@@ -63,17 +61,17 @@ public class Player {
     }
 
     public RequestDTO toRequestDTO(){
-        List<Player> opponents = getCurrentGame().getPlayers();
+        List<Player> opponents = currentTournament.getPlayers();
             opponents.remove(this);
         RequestDTO dto = RequestDTO.builder()
                 .userID(id)
                 .player(toDTO())
-                .status(getCurrentTournament().getStatus().name())
+                .status(currentTournament.getStatus().name())
                 .tableCards(getCurrentGame().getTableCards().stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
-                .playerCards(getCards().stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
+                .playerCards(cards.stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
                 .opponents(opponents.stream().map(Player::toDTO).collect(Collectors.toList()))
                 .build();
-        boolean isActiveNow = getCurrentTournament().getCurrentPlayer().equals(this);
+        boolean isActiveNow = currentTournament.getCurrentPlayer().equals(this);
         if(isActiveNow){
             List<EventType> eventTypes = Arrays.asList(EventType.fold, EventType.check, EventType.raise);
             dto.setAvailableEvents(eventTypes);

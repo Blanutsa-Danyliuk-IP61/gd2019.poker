@@ -100,6 +100,8 @@ public class Game {
             } else {
                 startRound();
             }
+        } else {
+            tournament.incrementCurrentPlayerIndex();
         }
     }
 

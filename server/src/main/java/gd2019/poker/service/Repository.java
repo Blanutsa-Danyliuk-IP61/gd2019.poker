@@ -1,4 +1,4 @@
-package gd2019.poker;
+package gd2019.poker.service;
 
 import gd2019.poker.model.Tournament;
 import gd2019.poker.model.TournamentStatus;

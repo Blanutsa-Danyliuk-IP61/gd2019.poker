@@ -1,6 +1,5 @@
 package gd2019.poker.service;
 
-import gd2019.poker.Repository;
 import gd2019.poker.model.*;
 import gd2019.poker.model.dto.RequestDTO;
 import gd2019.poker.model.dto.ResponseDTO;
@@ -83,35 +82,35 @@ public class GameService {
 
     private void handleCheck(Player player){
         Tournament tournament = player.getCurrentTournament();
-        tournament.incrementCurrentPlayerIndex();
+        tournament.checkStatusesAfterBid();
         sendDataToUsers(tournament);
     }
 
     private void handleRaise(Player player, Integer value){
         Tournament tournament = player.getCurrentTournament();
         player.setCurrentBid(value);
-        tournament.incrementCurrentPlayerIndex();
+        tournament.checkStatusesAfterBid();
         sendDataToUsers(tournament);
     }
 
     private void handleFold(Player player){
         Tournament tournament = player.getCurrentTournament();
         player.setActiveInGame(false);
-        tournament.incrementCurrentPlayerIndex();
+        tournament.checkStatusesAfterBid();
         sendDataToUsers(tournament);
     }
 
     private void handleBet(Player player, Integer value){
         Tournament tournament = player.getCurrentTournament();
         player.setCurrentBid(value);
-        tournament.incrementCurrentPlayerIndex();
+        tournament.checkStatusesAfterBid();
         sendDataToUsers(tournament);
     }
 
     private void handleCall(Player player){
         Tournament tournament = player.getCurrentTournament();
         player.setCurrentBid(tournament.getLiveBet());
-        tournament.incrementCurrentPlayerIndex();
+        tournament.checkStatusesAfterBid();
         sendDataToUsers(tournament);
     }
 

@@ -3,9 +3,6 @@ package gd2019.poker.model;
 import lombok.Data;
 
 import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 public class Tournament {
@@ -15,16 +12,18 @@ public class Tournament {
     private static final int DEFAULT_BIG_BLIND = 10;
 
     private CircularList<Player> players;
-    private List<Game> games;
     private int buttonIndex;
     private int smallBlindValue;
     private int bigBlindValue;
     private TournamentStatus status;
     private int currentPlayerIndex;
+    private Game game;
+    private int games;
+
 
     public Tournament(){
         this.players = new CircularList<>();
-        games = new LinkedList<>();
+        games = 0;
         buttonIndex = -1;
         smallBlindValue = DEFAULT_SMALL_BLIND;
         bigBlindValue = DEFAULT_BIG_BLIND;
@@ -54,6 +53,7 @@ public class Tournament {
         players.remove(player);
         player.setStatus(PlayerStatus.lose);
         player.setCurrentTournament(null);
+        buttonIndex--;
     }
 
     public void start(){
@@ -66,8 +66,7 @@ public class Tournament {
     }
 
     public void startGame(){
-        Game game = new Game(this);
-        games.add(game);
+        game = new Game(this);
         recalculateIndexesBeforeGame();
         game.getBidsFromBlinds();
         game.startRound();
@@ -75,7 +74,7 @@ public class Tournament {
 
     private void recalculateIndexesBeforeGame(){
         buttonIndex++;
-        if(games.size() % 3 == 0){
+        if(games % 3 == 0){
             smallBlindValue *= 2;
             bigBlindValue *= 2;
         }
@@ -86,7 +85,7 @@ public class Tournament {
     }
 
     public Game getCurrentGame(){
-        return games.get(games.size()-1);
+        return game;
     }
 
     public void incrementCurrentPlayerIndex(){
@@ -99,7 +98,7 @@ public class Tournament {
         return players.stream().map(Player::getCurrentBid).max(Comparator.naturalOrder()).get();
     }
 
-    public void checkStatuses(){
+    public void checkStatusesAfterBid(){
         getCurrentGame().checkStatuses();
     }
 
