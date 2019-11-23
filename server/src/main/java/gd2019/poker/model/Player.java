@@ -56,10 +56,6 @@ public class Player {
                 .build();
     }
 
-    private Game getCurrentGame(){
-        return currentTournament.getCurrentGame();
-    }
-
     public RequestDTO toRequestDTO(){
         List<Player> opponents = currentTournament.getPlayers();
             opponents.remove(this);
@@ -67,7 +63,7 @@ public class Player {
                 .userID(id)
                 .player(toDTO())
                 .status(currentTournament.getStatus().name())
-                .tableCards(getCurrentGame().getTableCards().stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
+                .tableCards(currentTournament.getTableCards().stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
                 .playerCards(cards.stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
                 .opponents(opponents.stream().map(Player::toDTO).collect(Collectors.toList()))
                 .build();
