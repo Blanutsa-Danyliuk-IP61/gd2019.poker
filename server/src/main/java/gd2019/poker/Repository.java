@@ -1,12 +1,13 @@
 package gd2019.poker;
 
-import gd2019.poker.model.Game;
-import gd2019.poker.model.GameStatus;
+import gd2019.poker.model.Tournament;
+import gd2019.poker.model.TournamentStatus;
 import gd2019.poker.model.Player;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 /**
@@ -16,7 +17,7 @@ import java.util.UUID;
 public class Repository {
 
     private List<Player> players = new ArrayList<>();
-    private List<Game> games = new ArrayList<>();
+    private List<Tournament> tournaments = new ArrayList<>();
 
     public Player getPlayerByID(UUID id){
         for (Player player: players) {
@@ -29,19 +30,20 @@ public class Repository {
         return player;
     }
 
-    public Game createGame(){
-        Game game = new Game();
-        games.add(game);
-        return game;
+    public Tournament createGame(){
+        Tournament tournament = new Tournament();
+        tournament.setStatus(TournamentStatus.waiting);
+        tournaments.add(tournament);
+        return tournament;
     }
 
-    public Game getGameByStatusIsWaiting(){
-        for(Game game: games){
-            if(game.getStatus().equals(GameStatus.waiting)){
-                return game;
+    public Tournament getGameByStatusIsWaiting(){
+        for(Tournament tournament : tournaments){
+            if(tournament.getStatus().equals(TournamentStatus.waiting)){
+                return tournament;
             }
         }
-        return null;
+        throw new NoSuchElementException();
     }
 
 }

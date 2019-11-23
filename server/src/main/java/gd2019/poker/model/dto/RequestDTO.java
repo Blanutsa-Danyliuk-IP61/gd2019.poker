@@ -1,17 +1,18 @@
 package gd2019.poker.model.dto;
 
-import gd2019.poker.model.ClassicCard;
-import gd2019.poker.model.Player;
-import gd2019.poker.model.Round;
+import gd2019.poker.model.EventType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Builder
+@Getter
 public class RequestDTO {
 
     private UUID userID;
@@ -20,5 +21,9 @@ public class RequestDTO {
     private String status;
     private List<CardDTO> tableCards;
     private List<CardDTO> playerCards;
+    @Setter
+    private List<EventType> availableEvents;
+    @Setter
+    private Integer maximumRaise;
 
 }

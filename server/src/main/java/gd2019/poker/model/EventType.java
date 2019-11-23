@@ -6,6 +6,8 @@ public enum EventType {
     disconnected,
     fold,
     check,
-    raise
+    raise,
+    bet,
+    call
 
 }

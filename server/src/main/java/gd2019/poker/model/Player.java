@@ -4,6 +4,7 @@ import gd2019.poker.model.dto.PlayerDTO;
 import gd2019.poker.model.dto.RequestDTO;
 import lombok.Data;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -13,49 +14,27 @@ import java.util.stream.Collectors;
 public class Player {
 
     private static final int DEFAULT_BALANCE = 100;
-    private static final String DEFAULT_NAME = "Player";
+    private static final String DEFAULT_NAME = "Player ";
 
     private UUID id;
     private PlayerStatus status;
     private String name;
-    private Game currentGame;
+    private Tournament currentTournament;
     private Integer currentBalance;
     private Integer currentBid;
     private Integer prize;
-    private Boolean activeInRound;
+    private Boolean activeInGame;
     private List<ClassicCard> cards;
     private PokerHandResult handResult;
     private Integer currentOrder;
 
     public Player(UUID id){
         this.id = id;
-        this.name = DEFAULT_NAME;
+        this.name = DEFAULT_NAME + id;
     }
 
-    public Player(String name) {
-        this.name = name;
-    }
-
-    public void initBeforeGame(){
-        currentBalance = DEFAULT_BALANCE;
-    }
-
-    public void initBeforeRound(){
-        activeInRound = getActiveInGame();
-    }
-
-    public void calculateBalanceAfterRound(){
+    public void calculateBalanceAfterGame(){
         currentBalance += prize;
-    }
-
-    public Boolean getActiveInGame(){
-        return currentBalance == 0;
-    }
-
-    public void calculatePrize(){
-        if(activeInRound){
-
-        }
     }
 
     @Override
@@ -79,21 +58,28 @@ public class Player {
                 .build();
     }
 
-    private Round getCurrentRound(){
-        return currentGame.getCurrentRound();
+    private Game getCurrentGame(){
+        return currentTournament.getCurrentGame();
     }
 
     public RequestDTO toRequestDTO(){
-        List<Player> opponents = getCurrentRound().getPlayers();
+        List<Player> opponents = getCurrentGame().getPlayers();
             opponents.remove(this);
-        return RequestDTO.builder()
+        RequestDTO dto = RequestDTO.builder()
                 .userID(id)
                 .player(toDTO())
-                .status(getCurrentGame().getStatus().name())
-                .tableCards(getCurrentRound().getTableCards().stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
+                .status(getCurrentTournament().getStatus().name())
+                .tableCards(getCurrentGame().getTableCards().stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
                 .playerCards(getCards().stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
                 .opponents(opponents.stream().map(Player::toDTO).collect(Collectors.toList()))
                 .build();
+        boolean isActiveNow = getCurrentTournament().getCurrentPlayer().equals(this);
+        if(isActiveNow){
+            List<EventType> eventTypes = Arrays.asList(EventType.fold, EventType.check, EventType.raise);
+            dto.setAvailableEvents(eventTypes);
+            dto.setMaximumRaise(currentBalance);
+        }
+        return dto;
     }
 
 }

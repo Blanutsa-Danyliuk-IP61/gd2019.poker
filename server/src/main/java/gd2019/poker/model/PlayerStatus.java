@@ -6,5 +6,7 @@ package gd2019.poker.model;
 public enum PlayerStatus {
     disconnected,
     waiting,
+    lose,
+    winner,
     playing
 }

@@ -25,7 +25,7 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
-                .addEndpoint("/greeting")
+                .addEndpoint("/user")
                 .setHandshakeHandler(new DefaultHandshakeHandler() {
                     public boolean beforeHandshake(
                             ServerHttpRequest request, ServerHttpResponse response,

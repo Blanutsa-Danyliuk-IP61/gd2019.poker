@@ -1,83 +1,122 @@
 package gd2019.poker.model;
 
-import lombok.Data;
+import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
 public class Game {
 
-    private static final int DEFAULT_BALANCE = 1000;
-    private static final int DEFAULT_SMALL_BLIND = 25;
-    private static final int DEFAULT_BIG_BLIND = 10;
+    private static final PokerHandEval eval = PokerHandEval.defaultEvaluator();
 
     private List<Player> players;
-    private List<Round> rounds;
-    private int smallBlindIndex;
-    private int bigBlindIndex;
-    private int smallBlind;
-    private int bigBlind;
-    private GameStatus status;
+    private DeckOfCards deckOfCards;
+    private List<ClassicCard> tableCards;
+    private Tournament tournament;
+    private int rounds;
 
-    public Game(){
-        this.players = new LinkedList<>();
-    }
-
-    public Game(List<Player> players) {
-        this.players = players;
-        players.forEach(p -> p.setCurrentGame(this));
-        rounds = new LinkedList<>();
-        smallBlindIndex = 0;
-        bigBlindIndex = 1;
-        smallBlind = DEFAULT_SMALL_BLIND;
-        bigBlind = DEFAULT_BIG_BLIND;
-    }
-
-    public void addPlayer(Player player){
-        players.add(player);
-        player.setStatus(PlayerStatus.waiting);
-        player.setCurrentGame(this);
-    }
-
-    public void removePlayer(Player player){
-        players.remove(player);
-        player.setCurrentGame(null);
-    }
-
-    public void start(){
-        for (Player player: players) {
-            player.setStatus(PlayerStatus.playing);
+    public Game(Tournament tournament) {
+        this.players = tournament.getPlayers();
+        this.tournament = tournament;
+        this.deckOfCards = new DeckOfCards();
+        this.rounds = 0;
+        for(Player player: players){
+            player.setCards(deckOfCards.spread(2));
         }
-        status = GameStatus.active;
-        do {
-            Round round = new Round(this);
-            rounds.add(round);
-            recalculateBlinds();
-        } while (haveNotWinner());
+        tableCards = deckOfCards.spread(2);
     }
 
-    private void recalculateBlinds(){
-        smallBlindIndex = (smallBlindIndex + 1) % players.size();
-        bigBlindIndex = (bigBlindIndex + 1) % players.size();
-        if(rounds.size() % 3 == 0){
-            smallBlind *= 2;
-            bigBlind *= 2;
+    private void finish(){
+        calculateHandResults();
+        sortByHandResults();
+        calculatePrize();
+        calculateBalance();
+        tournament.removeLosers();
+        tournament.handleWin();
+    }
+
+    public void calculateHandResults(){
+        for (Player player : players) {
+            List<ClassicCard> cards = new ArrayList<>(tableCards);
+            cards.addAll(player.getCards());
+            PokerHandResult handResult = eval.test(cards.toArray(new ClassicCard[0]));
+            player.setHandResult(handResult);
         }
     }
 
-    private boolean haveNotWinner(){
-        return getPlayersActiveInGame().size() == 1;
+    public void sortByHandResults(){
+        players.sort(Comparator.comparing(Player::getHandResult).reversed());
     }
 
-    public List<Player> getPlayersActiveInGame(){
+    public void calculatePrize(){
+        for(Player player: players){
+            if(player.getActiveInGame()){
+                int playerPrize = possiblePrize(player);
+                player.setPrize(playerPrize);
+                players.forEach(p -> p.setCurrentBid(Math.max(0, p.getCurrentBid() - playerPrize)));
+            } else {
+                player.setPrize(0);
+            }
+        }
+    }
+
+    public int possiblePrize(Player player1){
+        int possiblePrize = 0;
+        int player1Bid = player1.getCurrentBid();
+        for (Player player2: players) {
+            int player2Bid = player2.getCurrentBid();
+            possiblePrize += Math.min(player1Bid, player2Bid);
+        }
+        return possiblePrize;
+    }
+
+    public void calculateBalance(){
+        players.forEach(Player::calculateBalanceAfterGame);
+    }
+
+    public void getBidsFromBlinds(){
+        Player smallBlindPlayer = players.get(tournament.getButtonIndex() + 1);
+        smallBlindPlayer.setCurrentBid(tournament.getSmallBlindValue());
+
+        Player bigBlindPlayer = players.get(tournament.getButtonIndex() + 2);
+        bigBlindPlayer.setCurrentBid(tournament.getBigBlindValue());
+
+        tournament.setCurrentPlayerIndex(2);
+    }
+
+    public void startRound(){
+        tableCards.add(deckOfCards.spread());
+        rounds++;
+    }
+
+    public void checkStatuses(){
+        if(getActiveInGamePlayers().size() == 1){
+            finish();
+        }
+        if(allBidsAreMatched()){
+            if(rounds == 3){
+                finish();
+            } else {
+                startRound();
+            }
+        }
+    }
+
+    public List<Player> getActiveInGamePlayers(){
         return players.stream().filter(Player::getActiveInGame).collect(Collectors.toList());
     }
 
-    public Round getCurrentRound(){
-        return rounds.get(rounds.size()-1);
+    public boolean allBidsAreMatched(){
+        Set<Integer> activePlayersCurrentBids = new HashSet<>();
+        for (Player player : getActiveInGamePlayers()) {
+            Integer currentBid = player.getCurrentBid();
+            Integer currentBalance = player.getCurrentBalance();
+            if(currentBid != 0 && currentBalance != 0){
+                activePlayersCurrentBids.add(currentBid);
+            }
+        }
+        return activePlayersCurrentBids.size() == 1;
     }
 
 }
