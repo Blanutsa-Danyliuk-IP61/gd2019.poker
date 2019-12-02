@@ -1,0 +1,18 @@
+.poker {
+    padding-top: 10px;
+    margin: 0 auto;
+    max-width: 1000px;
+    color: white;
+    display: grid;
+    width: 950px;
+    grid-template-columns: 20% 60% 20%;
+    grid-template-rows: 68px 130px 150px 200px;
+    grid-row-gap: 10px;
+    grid-template-areas:
+            'infopanel infopanel infopanel'
+            '. ai2 .'
+            'ai1 table ai3'
+            'player player player';
+    background-color: rgb(0, 80, 0);
+    border-radius: 20px;
+}

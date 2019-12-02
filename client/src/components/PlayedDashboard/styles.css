@@ -1,0 +1,16 @@
+.dashboard {
+    grid-area: player;
+    display: grid;
+    grid-template-columns: 25% 50% 25%;
+    grid-template-areas: 'playerName playerCards playerOptions';
+}
+.dashboard #status-wrapper {
+    padding: 10px 20px;
+}
+.dashboard #status-wrapper h4 {
+    text-align: left;
+    grid-area: playerName;
+}
+.dashboard h4 {
+    margin: 0 auto;
+}

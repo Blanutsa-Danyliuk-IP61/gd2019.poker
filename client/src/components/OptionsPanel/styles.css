@@ -1,0 +1,21 @@
+.option-panel {
+    padding: 10px;
+}
+.option-panel #playerOptions{
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    height: 75%;
+    grid-template-columns: 50% 50%;
+}
+.option-panel .option-button {
+    outline: none;
+    width: 90%;
+    height: 40px;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px 0 #1c3814, 0 6px 20px 0 #1c3814;
+    font-size: 1em;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+}
+

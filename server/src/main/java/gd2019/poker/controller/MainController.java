@@ -19,5 +19,4 @@ public class MainController {
     public void handleResponse(@Payload ResponseDTO response) {
         this.gameService.handleResponse(response);
     }
-
 }

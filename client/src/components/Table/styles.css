@@ -1,0 +1,7 @@
+.table {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    grid-area: table;
+    padding-left: 30px;
+}
