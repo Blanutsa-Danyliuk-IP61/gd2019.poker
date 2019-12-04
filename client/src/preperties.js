@@ -1,5 +1,5 @@
 const properties = {
-    serverUrl: 'ws://localhost:8080/',client
+    serverUrl: 'http://localhost:8081/poker',
 };
 
 export default properties;

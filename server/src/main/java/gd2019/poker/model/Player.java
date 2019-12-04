@@ -25,6 +25,7 @@ public class Player {
     private Boolean activeInGame;
     private List<ClassicCard> cards;
     private PokerHandResult handResult;
+    private String sessionId;
 
     public Player(UUID id){
         this.id = id;
@@ -58,7 +59,8 @@ public class Player {
 
     public RequestDTO toRequestDTO(){
         List<Player> opponents = currentTournament.getPlayers();
-            opponents.remove(this);
+        opponents.remove(this);
+
         RequestDTO dto = RequestDTO.builder()
                 .userID(id)
                 .player(toDTO())
@@ -67,12 +69,14 @@ public class Player {
                 .playerCards(cards.stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
                 .opponents(opponents.stream().map(Player::toDTO).collect(Collectors.toList()))
                 .build();
+
         boolean isActiveNow = currentTournament.getCurrentPlayer().equals(this);
         if(isActiveNow){
             List<EventType> eventTypes = Arrays.asList(EventType.fold, EventType.check, EventType.raise);
             dto.setAvailableEvents(eventTypes);
             dto.setMaximumRaise(currentBalance);
         }
+
         return dto;
     }
 

@@ -1,11 +1,8 @@
 package gd2019.poker.model;
 
-import lombok.Data;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Data
 public class Tournament {
 
     private static final PokerHandEval eval = PokerHandEval.defaultEvaluator();
@@ -13,7 +10,7 @@ public class Tournament {
     private static final int DEFAULT_SMALL_BLIND = 25;
     private static final int DEFAULT_BIG_BLIND = 10;
 
-    private CircularList<Player> players;
+    private List<Player> players;
     private int buttonIndex;
     private int smallBlindValue;
     private int bigBlindValue;
@@ -21,11 +18,11 @@ public class Tournament {
     private int currentPlayerIndex;
     private int games;
     private DeckOfCards deckOfCards;
-    private List<ClassicCard> tableCards;
+    private List<ClassicCard> tableCards = new ArrayList<>();
     private int rounds;
 
     public Tournament(){
-        this.players = new CircularList<>();
+        this.players = new ArrayList<>();
         games = 0;
         buttonIndex = -1;
         smallBlindValue = DEFAULT_SMALL_BLIND;
@@ -207,4 +204,99 @@ public class Tournament {
         }
     }
 
+    public static PokerHandEval getEval() {
+        return eval;
+    }
+
+    public static int getDefaultBalance() {
+        return DEFAULT_BALANCE;
+    }
+
+    public static int getDefaultSmallBlind() {
+        return DEFAULT_SMALL_BLIND;
+    }
+
+    public static int getDefaultBigBlind() {
+        return DEFAULT_BIG_BLIND;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(List<Player> players) {
+        this.players = players;
+    }
+
+    public int getButtonIndex() {
+        return buttonIndex;
+    }
+
+    public void setButtonIndex(int buttonIndex) {
+        this.buttonIndex = buttonIndex;
+    }
+
+    public int getSmallBlindValue() {
+        return smallBlindValue;
+    }
+
+    public void setSmallBlindValue(int smallBlindValue) {
+        this.smallBlindValue = smallBlindValue;
+    }
+
+    public int getBigBlindValue() {
+        return bigBlindValue;
+    }
+
+    public void setBigBlindValue(int bigBlindValue) {
+        this.bigBlindValue = bigBlindValue;
+    }
+
+    public TournamentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TournamentStatus status) {
+        this.status = status;
+    }
+
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
+    public void setCurrentPlayerIndex(int currentPlayerIndex) {
+        this.currentPlayerIndex = currentPlayerIndex;
+    }
+
+    public int getGames() {
+        return games;
+    }
+
+    public void setGames(int games) {
+        this.games = games;
+    }
+
+    public DeckOfCards getDeckOfCards() {
+        return deckOfCards;
+    }
+
+    public void setDeckOfCards(DeckOfCards deckOfCards) {
+        this.deckOfCards = deckOfCards;
+    }
+
+    public List<ClassicCard> getTableCards() {
+        return tableCards;
+    }
+
+    public void setTableCards(List<ClassicCard> tableCards) {
+        this.tableCards = tableCards;
+    }
+
+    public int getRounds() {
+        return rounds;
+    }
+
+    public void setRounds(int rounds) {
+        this.rounds = rounds;
+    }
 }

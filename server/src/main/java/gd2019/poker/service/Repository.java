@@ -25,8 +25,10 @@ public class Repository {
                 return player;
             }
         }
+
         Player player = new Player(id);
         players.add(player);
+
         return player;
     }
 
@@ -43,7 +45,7 @@ public class Repository {
                 return tournament;
             }
         }
-        throw new NoSuchElementException();
-    }
 
+        return null;
+    }
 }
