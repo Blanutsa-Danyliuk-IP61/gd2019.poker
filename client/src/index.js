@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import Poker from './components/Poker';
-import '../src/util/websocket';
 
 ReactDOM.render(<Poker />, document.getElementById('root'));
 
