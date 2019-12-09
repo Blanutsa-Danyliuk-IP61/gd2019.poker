@@ -1,19 +1,16 @@
-import React, { useRef, useEffect } from 'react';
+import React  from 'react';
 
 import './styles.css';
 
-const InfoPanel = ({ messages }) => {
-  let div = useRef(null);
-
-  useEffect(() => {
-        div.scrollTop = div.scrollHeight;
-  });
+const InfoPanel = (props) => {
 
   return (
-    <div className='info-panel' ref={el => {div = el}}>
-        {messages.toArray().map(str => (
-            <p key={`infomsg${str.slice(0, 40)}`}>{str}</p>
-        ))}
+    <div className='info-panel'>
+        {
+          props.messages.map((str, i) => (
+            <p key={str.substring(0, 3) + str.substring(str.length - 3, str.length)}>{str}</p>
+          ))
+        }
     </div>
   );
 };

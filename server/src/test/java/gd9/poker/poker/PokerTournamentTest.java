@@ -1,6 +1,6 @@
 package gd9.poker.poker;
 
-import gd2019.poker.controller.MainController;
+import gd2019.poker.controller.WebsocketController;
 import gd2019.poker.service.GameService;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(MainController.class)
+@WebMvcTest(WebsocketController.class)
 public class PokerTournamentTest {
 
     @Autowired

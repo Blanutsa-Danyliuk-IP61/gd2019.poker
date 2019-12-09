@@ -19,6 +19,12 @@ public class Repository {
     private List<Player> players = new ArrayList<>();
     private List<Tournament> tournaments = new ArrayList<>();
 
+    {
+        Player player = new Player(UUID.randomUUID());
+        player.setName("dima");
+        players.add(player);
+    }
+
     public Player getPlayerByID(UUID id){
         for (Player player: players) {
             if(player.getId().equals(id)){
@@ -47,5 +53,9 @@ public class Repository {
         }
 
         return null;
+    }
+
+    public boolean isLoginUnique(String login) {
+        return players.stream().noneMatch(player -> login.equals(player.getName()));
     }
 }

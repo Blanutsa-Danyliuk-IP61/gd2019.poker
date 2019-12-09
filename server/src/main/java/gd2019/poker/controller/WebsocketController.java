@@ -7,11 +7,11 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class MainController {
+public class WebsocketController {
 
     private GameService gameService;
 
-    public MainController(GameService gameService) {
+    public WebsocketController(GameService gameService) {
         this.gameService = gameService;
     }
 

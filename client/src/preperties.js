@@ -1,5 +1,6 @@
 const properties = {
-    serverUrl: 'http://localhost:8081/poker',
+    websocketUrl: 'http://localhost:8080/poker',
+    apiUrl: 'http://localhost:8080/api'
 };
 
 export default properties;

@@ -64,12 +64,6 @@ class Deck {
     this.remainingCards -= 1;
     return new Card(value, suit);
   }
-  
-  reset() { 
-    this.deck = cloneDeck(baseDeck);
-    this.remainingCards = 52;
-  };
-
 }
 
 const deck = new Deck();

@@ -4,21 +4,21 @@ import Card from '../Card';
 
 import './styles.css';
 
-const PlayerHand = ({ hand }) => {
+const PlayerHand = (props) => {
 
-  return (
-      <div className='player-hand'>
-          {hand.map(card => (
-              <Card
-                  key={`player${card.displayName}`}
-                  width={120}
-                  shown
-                  card={card}
-                  location="player"
-              />
-          ))}
-      </div>
-  );
+    const { hand } = props;
+
+    return (
+        <div className='player-hand'>
+            {hand.map(card => (
+                <Card
+                    key={`${card.short + card.suitEmoji}`}
+                    shown
+                    card={card}
+                />
+            ))}
+        </div>
+    );
 };
 
 export default PlayerHand;

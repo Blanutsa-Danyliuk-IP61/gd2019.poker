@@ -1,21 +1,25 @@
 import React from 'react';
 
+import { Grid } from '@material-ui/core';
 import PlayerHand from '../PlayerHand';
-import OptionsPanel from '../OptionsPanel/OptionsPanel';
+import OptionPanel from '../OptionsPanel';
 
-import './styles.css';
+import useStyles from './styles';
 
-const PlayerDashboard = ({ data, options, callbacks }) => {
+const PlayerDashboard = (props) => {
 
-  return (
-    <div className='dashboard'>
-        <div id='status-wrapper'>
-            <h4>{`Player${data.active ? '' : ' (folded)'}`}</h4>
-        </div>
-        <PlayerHand hand={data.hand} />
-        <OptionsPanel options={options} callbacks={callbacks} />
-    </div>
-  );
+    const classes = useStyles();
+    const { data, options, callbacks } = props;
+
+    return (
+        <Grid className={classes.root}>
+            <div id='status-wrapper'>
+                <h4>{`Player${data.active ? '' : ' (folded)'}`}</h4>
+            </div>
+            <PlayerHand hand={data.hand} />
+            <OptionPanel options={options} callbacks={callbacks} />
+        </Grid>
+    );
 };
 
 export default PlayerDashboard;

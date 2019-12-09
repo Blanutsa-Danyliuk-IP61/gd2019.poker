@@ -1,16 +1,27 @@
 import React from 'react';
 
+import { Grid } from '@material-ui/core';
 import Card from '../Card';
 
-import './styles.css';
+import useStyles from './styles';
 
-const Table = ({ cards }) => {
+const Table = (props) => {
+
+    const classes = useStyles();
+    const { cards } = props;
+
     return (
-      <div className='table'>
-          {cards.map(card => (
-              <Card key={`table${card.displayName}`} width={80} shown card={card} />
-          ))}
-      </div>
+          <Grid container className={classes.root} justify='space-around'>
+              {cards.map(card => (
+                  <Grid
+                      key={card.short + card.suitEmoji}
+                      item
+                      xs={2}
+                  >
+                    <Card shown card={card} />
+                  </Grid>
+              ))}
+          </Grid>
     );
 };
 

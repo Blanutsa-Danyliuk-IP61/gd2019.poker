@@ -4,8 +4,18 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 import Poker from './components/Poker';
 import '../src/util/websocket';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import rootReducer from '../src/util/redux/reducers';
 
-ReactDOM.render(<Poker />, document.getElementById('root'));
+const store = createStore(rootReducer);
+
+ReactDOM.render(
+    <Provider store={store}>
+        <Poker/>
+    </Provider>,
+    document.getElementById('root')
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

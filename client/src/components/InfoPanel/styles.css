@@ -1,13 +1,6 @@
 .info-panel {
     width: 100%;
-    grid-area: infopanel;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    overflow: scroll;
-    overflow-x: hidden;
-    margin-bottom: 5px;
-    padding: 10px 0;
+    padding: 10px;
 }
 .info-panel p {
     font-size: 12px;
