@@ -1,10 +1,12 @@
 import React from 'react';
+import { useSelector } from "react-redux";
 
-import { Grid } from '@material-ui/core';
+import { Grid, Avatar } from '@material-ui/core';
 import PlayerPanel from '../PlayerPanel';
 import { InfoMessagesQueue } from '../../util/infoMessagesQueue';
 import Table from '../Table';
-import PlayerDashboard from '../PlayedDashboard';
+import OptionPanel from '../OptionsPanel';
+import { getBalance } from '../../util/redux/reducers/main';
 
 import useStyles from './styles';
 
@@ -61,87 +63,64 @@ const GameArea = () => {
         },
     ];
 
+    const balance = useSelector(getBalance);
+
     return (
-        <Grid
-            container
-            item
-            xs={12}
-            className={classes.root}
-        >
-            <Grid
-                key='player-1'
-                item
-                container
-                xs={12}
-                justify='center'
-            >
-                <Grid
-                    item
-                    xs={3}
-                >
+        <Grid container item xs={12} className={classes.root}>
+            <Grid key='player-1' item container xs={12} justify='center'>
+                <Grid item xs={3}>
                     <PlayerPanel
                         active={true}
                         folded={false}
+                        shown={false}
                         login='Mykola'
                         cards={playerCards}
+                        balance={100}
+                        current={true}
                     />
                 </Grid>
             </Grid>
-            <Grid
-                key='player-2-table-player-3'
-                item
-                container
-                xs={12}
-                justify='space-between'
-                className={classes.tableContainer}
-            >
-                <Grid
-                    key='player-2'
-                    item
-                    xs={3}
-                >
+            <Grid key='player-2-table-player-3' item container xs={12} justify='space-between' className={classes.tableContainer}>
+                <Grid key='player-2' item xs={3}>
                     <PlayerPanel
                         active={true}
                         folded={false}
+                        shown={false}
                         login='Dima'
                         cards={playerCards}
+                        balance={100}
                     />
                 </Grid>
-                <Grid
-                    key='table'
-                    item
-                    xs={5}
-                >
+                <Grid key='table' item container xs={5} direction='column' justify='center'>
                     <Table cards={tableCards} />
                 </Grid>
-                <Grid
-                    key='player-3'
-                    item
-                    xs={3}
-                >
+                <Grid key='player-3' item xs={3}>
                     <PlayerPanel
                         active={true}
                         folded={false}
+                        shown={false}
                         login='Roma'
                         cards={playerCards}
+                        balance={100}
                     />
                 </Grid>
             </Grid>
-            <Grid
-                key='player-dashboard'
-                item
-                xs={12}
-            >
-                <PlayerDashboard
-                    data={state.playerData.player}
-                    callbacks={{
-                        Fold: () => 'd',
-                        Call: () => 'd',
-                        Deal: () => 'd',
-                        'New Game': () => 'd',
-                    }}
-                    options={state.playerOptions}
-                />
+            <Grid key='you' item container xs={12} justify='flex-end'>
+                <Grid item xs={4}>
+                    <PlayerPanel
+                        active={true}
+                        folded={false}
+                        shown={true}
+                        login='Mykola'
+                        cards={playerCards}
+                        balance={balance}
+                    />
+                </Grid>
+                <Grid key='player-dashboard' container item xs={4} justify='flex-end'>
+                    <Grid key='player-dashboard' item xs={9}>
+                        <OptionPanel/>
+                    </Grid>
+                </Grid>
             </Grid>
         </Grid>
     );

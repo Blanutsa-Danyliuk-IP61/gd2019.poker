@@ -1,33 +1,41 @@
 import React from 'react';
 
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, Typography, Avatar } from '@material-ui/core';
+import cardBack from '../../assets/images/cardback.jpg';
 
-import useStyles from './styles'
+import useStyles from './styles';
 
 const Card = (props) => {
 
     const classes = useStyles();
     const { shown, card } = props;
 
+    const getColorBySuit = (suit) => {
+        if (suit === '♥️' || suit === '♦️') {
+            return 'red';
+        } else {
+            return 'black';
+        }
+    };
+
     return (
-        <Grid container className={classes.root}>
+        <Grid container justify='center'>
             {
                 shown ? (
-                    <Grid
-                        justify='center'
-                        item
-                        container
-                        xs={12}
-                    >
-                        <Typography key='short' className={classes.short}>{card.short}</Typography>
-                        <Typography key='suit' className={classes.suitEmoji}>{card.suitEmoji}</Typography>
+                    <Grid container item className={classes.card} direction='column' alignItems='center'>
+                        <Grid item xs={6}>
+                            <Typography key='short' style={{color: getColorBySuit(card.suitEmoji)}} className={classes.cardFont}>
+                                {card.short}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography key='suit' style={{color: getColorBySuit(card.suitEmoji)}} className={classes.cardFont}>
+                                {card.suitEmoji}
+                            </Typography>
+                        </Grid>
                     </Grid>
                 ) : (
-                    <Grid
-                        item
-                        xs={12}
-                        className={classes.backCard}
-                    />
+                    <Avatar className={classes.img} alt='Card back' src={cardBack} variant='square'/>
                 )
             }
         </Grid>

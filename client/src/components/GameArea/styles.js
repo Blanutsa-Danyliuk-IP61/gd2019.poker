@@ -10,7 +10,7 @@ const useStyles = makeStyles({
         borderRadius: '5px'
     },
     tableContainer: {
-        marginTop: '10px'
+        margin: '10px 0'
     }
 });
 

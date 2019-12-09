@@ -54,7 +54,7 @@ class Poker extends Component {
         const  {isNewUser, classes } = this.props;
 
         return (
-            <Grid container item xs={12} md={10} lg={9} className={classes.root}>
+            <Grid container item xs={12} md={11} lg={10} className={classes.root}>
                 <Grid
                     key='game-area'
                     item

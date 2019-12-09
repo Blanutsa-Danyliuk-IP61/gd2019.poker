@@ -11,11 +11,12 @@ const Table = (props) => {
     const { cards } = props;
 
     return (
-          <Grid container className={classes.root} justify='space-around'>
+          <Grid container className={classes.root} justify='space-between'>
               {cards.map(card => (
                   <Grid
                       key={card.short + card.suitEmoji}
                       item
+                      container
                       xs={2}
                   >
                     <Card shown card={card} />
