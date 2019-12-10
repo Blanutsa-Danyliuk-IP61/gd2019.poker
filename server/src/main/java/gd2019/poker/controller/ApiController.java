@@ -19,4 +19,9 @@ public class ApiController {
     public boolean checkLogin(@RequestBody SimpleRequest<String> request) {
         return repository.isLoginUnique(request.getData());
     }
+
+    @PostMapping("/check/user")
+    public boolean checkUser(@RequestBody SimpleRequest<String> request) {
+        return repository.isUserRegistered(request.getData());
+    }
 }

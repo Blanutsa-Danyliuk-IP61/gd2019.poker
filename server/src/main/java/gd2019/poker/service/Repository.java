@@ -1,5 +1,6 @@
 package gd2019.poker.service;
 
+import gd2019.poker.errors.ApiError;
 import gd2019.poker.model.Tournament;
 import gd2019.poker.model.TournamentStatus;
 import gd2019.poker.model.Player;
@@ -32,10 +33,7 @@ public class Repository {
             }
         }
 
-        Player player = new Player(id);
-        players.add(player);
-
-        return player;
+        throw new ApiError("User not found");
     }
 
     public Tournament createGame(){
@@ -57,5 +55,9 @@ public class Repository {
 
     public boolean isLoginUnique(String login) {
         return players.stream().noneMatch(player -> login.equals(player.getName()));
+    }
+
+    public boolean isUserRegistered(String id) {
+        return players.stream().noneMatch(player -> UUID.fromString(id).equals(player.getId()));
     }
 }

@@ -13,9 +13,9 @@ public class DeckOfCards {
 
     public DeckOfCards() {
         allCards = new LinkedList<>();
-        for(Suite suite: Suite.values()){
-            for(int rank = ClassicCard.RANK_2; rank <= ClassicCard.RANK_ACE; rank++){
-                allCards.add(new ClassicCard(suite,rank));
+        for(Suite suite : Suite.values()){
+            for(Rank rank : Rank.values()){
+                allCards.add(new ClassicCard(suite, rank.getValue()));
             }
         }
         Collections.shuffle(allCards);
