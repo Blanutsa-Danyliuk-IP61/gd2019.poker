@@ -2,7 +2,10 @@ import { makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles({
     root: {
-        height: '60%'
+        display: 'inline-block',
+        height: '20px',
+        width: '20px',
+        margin: '0 5px'
     }
 });
 

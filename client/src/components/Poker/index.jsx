@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 
 import {Grid, withStyles} from '@material-ui/core';
-import { InfoMessagesQueue } from './../../util/infoMessagesQueue';
 
 import { connect } from 'react-redux';
 import { getLogin, isNewUser } from '../../util/redux/reducers/main';
+import { connectWS } from '../../util/websocket';
 
 import LoginInputDialog from '../LoginInput';
 import GameArea from '../GameArea';
@@ -28,26 +28,9 @@ const styles = {
 
 class Poker extends Component {
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            playerData: {
-                player: { id: 'player', active: true, hand: [] },
-                ai1: { id: 'ai1', active: true, hand: [] },
-                ai2: { id: 'ai2', active: true, hand: [] },
-                ai3: { id: 'ai3', active: true, hand: [] },
-              },
-            tableCards: [],
-            playerOptions: { Fold: false, Call: false, Deal: true, 'New Game': false },
-            displayAICards: false,
-            gameStage: 0,
-            playerIsActive: true,
-            infoMessages: new InfoMessagesQueue(),
-        };
+    componentDidMount() {
+        connectWS();
     }
-
-    componentDidMount() {}
 
     render() {
 

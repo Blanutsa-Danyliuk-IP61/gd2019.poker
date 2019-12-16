@@ -11,6 +11,9 @@ const useStyles = makeStyles({
     },
     tableContainer: {
         margin: '10px 0'
+    },
+    bottomPlayers: {
+        marginTop: '20px'
     }
 });
 

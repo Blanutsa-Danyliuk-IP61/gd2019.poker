@@ -13,12 +13,6 @@ const useStyles = makeStyles({
         fontSize: '0.9em',
         fontWeight: 'bold',
     },
-    coins: {
-        display: 'inline-box',
-        height: '20px',
-        width: '20px',
-        marginRight: '5px'
-    },
     balance: {
         display: 'inline-box',
         fontSize: '0.8em',

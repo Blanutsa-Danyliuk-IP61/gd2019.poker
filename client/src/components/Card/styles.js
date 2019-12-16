@@ -1,5 +1,4 @@
 import { makeStyles } from '@material-ui/core';
-import cardBack from '../../assets/images/cardback.jpg';
 
 const useStyles = makeStyles({
     card: {

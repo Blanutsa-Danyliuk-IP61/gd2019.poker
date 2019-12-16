@@ -1,17 +1,18 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 import { Grid } from '@material-ui/core';
 import Card from '../Card';
 
-import useStyles from './styles';
+
+import { getTableCards } from '../../util/redux/reducers/main';
 
 const Table = (props) => {
 
-    const classes = useStyles();
     const { cards } = props;
 
     return (
-          <Grid container className={classes.root} justify='space-between'>
+          <Grid container justify='space-between'>
               {cards.map(card => (
                   <Grid
                       key={card.short + card.suitEmoji}
@@ -26,4 +27,9 @@ const Table = (props) => {
     );
 };
 
-export default Table;
+const mapStateToProps = state => ({
+    cards: getTableCards(state)
+});
+
+
+export default connect(mapStateToProps)(Table);

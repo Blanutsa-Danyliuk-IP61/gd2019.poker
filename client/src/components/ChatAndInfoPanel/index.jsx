@@ -17,11 +17,11 @@ const ChatAndInfoPanel = () => {
             className={classes.root}
             justify='space-around'
         >
-            <Grid
-                key='chat'
-                item xs={5}
-                className={classes.item}
-            />
+            {/*<Grid*/}
+            {/*    key='chat'*/}
+            {/*    item xs={5}*/}
+            {/*    className={classes.item}*/}
+            {/*/>*/}
             <Grid
                 key='info-panel'
                 item
