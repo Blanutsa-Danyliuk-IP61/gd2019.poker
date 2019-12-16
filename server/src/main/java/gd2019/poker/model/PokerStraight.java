@@ -1,5 +1,8 @@
 package gd2019.poker.model;
 
+import gd2019.poker.model.enums.PokerHandType;
+import gd2019.poker.model.enums.Rank;
+
 import java.util.Map;
 
 /**
@@ -12,7 +15,7 @@ public class PokerStraight implements PokerHandResultProducer {
      * @param rankQuantities An array of the ranks provided by {@link PokerHandAnalyze}
      * @return The highest rank (index + 1) for which the straight started
      */
-    public static int findHighestIndexForStraight(Map<Rank ,Integer> rankQuantities) {
+    public static int findHighestIndexForStraight(Map<Rank,Integer> rankQuantities) {
         return findHighestIndexForStraight(rankQuantities, Rank.values().length - 1);
     }
 

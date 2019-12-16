@@ -1,6 +1,6 @@
-package gd2019.poker.model.dto;
+package gd2019.poker.dto;
 
-import gd2019.poker.model.EventType;
+import gd2019.poker.model.enums.EventType;
 import lombok.Data;
 
 import java.util.UUID;

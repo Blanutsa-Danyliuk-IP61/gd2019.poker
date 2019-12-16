@@ -1,6 +1,6 @@
 package gd2019.poker.controller;
 
-import gd2019.poker.model.dto.SimpleRequest;
+import gd2019.poker.dto.SimpleRequest;
 import gd2019.poker.service.Repository;
 import org.springframework.web.bind.annotation.*;
 

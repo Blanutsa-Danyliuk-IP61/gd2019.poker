@@ -1,15 +1,16 @@
 package gd2019.poker.model;
 
-import gd2019.poker.model.dto.CardDTO;
+import gd2019.poker.dto.CardDTO;
+import gd2019.poker.model.enums.Rank;
+import gd2019.poker.model.enums.Suit;
 import lombok.Getter;
-
-import java.util.Objects;
 
 @Getter
 public class ClassicCard {
 
-    private final Suite suite;
+    private final Suit suit;
     private final Rank rank;
+    private final String text;
 
     public static final int RANK_2 = 2;
     public static final int RANK_3 = 3;
@@ -25,20 +26,21 @@ public class ClassicCard {
     public static final int RANK_KING = 13;
     public static final int RANK_ACE = 14;
 
-    public ClassicCard(Suite suite, int rank) {
-        this.suite = Objects.requireNonNull(suite, "Suite cannot be null");
-        this.rank = Rank.values()[rank-2];
+    public ClassicCard(Suit suit, Rank rank) {
+        this.suit = suit;
+        this.rank = Rank.values() [ rank.getValue() - 2 ];
+        this.text = rank.getText();
     }
 
     public CardDTO toDTO(){
         return CardDTO.builder()
-                .suite(suite)
-                .rank(rank)
+                .text(text)
+                .suit(suit)
                 .build();
     }
 
     @Override
     public String toString() {
-        return new StringBuilder().append(suite).append(" ").append(rank).toString();
+        return new StringBuilder().append(suit).append(" ").append(rank).toString();
     }
 }

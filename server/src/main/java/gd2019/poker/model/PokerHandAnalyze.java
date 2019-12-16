@@ -1,5 +1,9 @@
 package gd2019.poker.model;
 
+import gd2019.poker.model.enums.PokerHandType;
+import gd2019.poker.model.enums.Rank;
+import gd2019.poker.model.enums.Suit;
+
 import java.util.*;
 
 /**
@@ -8,7 +12,7 @@ import java.util.*;
 public class PokerHandAnalyze {
 
     private Map<Rank, Integer> rankQuantities;
-    private Map<Suite, Integer> suiteQuantities;
+    private Map<Suit, Integer> suiteQuantities;
     private final ClassicCard[] cards;
 
     private PokerHandAnalyze(ClassicCard[] cards2) {
@@ -20,8 +24,8 @@ public class PokerHandAnalyze {
         }
 
         suiteQuantities = new HashMap<>();
-        for(Suite suite: Suite.values()){
-            suiteQuantities.put(suite, 0);
+        for(Suit suit : Suit.values()){
+            suiteQuantities.put(suit, 0);
         }
     }
     /**
@@ -32,9 +36,9 @@ public class PokerHandAnalyze {
     public static PokerHandAnalyze analyze(ClassicCard... cards) {
         PokerHandAnalyze hand = new PokerHandAnalyze(cards);
         for (ClassicCard card : cards) {
-            Suite suite = card.getSuite();
-            Integer suiteQuantity = hand.suiteQuantities.get(suite);
-            hand.suiteQuantities.put(suite, suiteQuantity+1);
+            Suit suit = card.getSuit();
+            Integer suiteQuantity = hand.suiteQuantities.get(suit);
+            hand.suiteQuantities.put(suit, suiteQuantity+1);
 
             Rank rank = card.getRank();
             Integer rankQuantity = hand.rankQuantities.get(rank);
@@ -47,7 +51,7 @@ public class PokerHandAnalyze {
         return rankQuantities;
     }
 
-    public Map<Suite, Integer> getSuiteQuantities() {
+    public Map<Suit, Integer> getSuiteQuantities() {
         return suiteQuantities;
     }
 
@@ -60,13 +64,13 @@ public class PokerHandAnalyze {
     }
     /**
      * Create a sub-analyze which only includes wildcards and the specified suite. Useful to check for the FLUSH {@link PokerHandType}
-     * @param suite The suite to filter by
+     * @param suit The suite to filter by
      * @return A new analyze object
      */
-    public PokerHandAnalyze filterBySuite(Suite suite) {
+    public PokerHandAnalyze filterBySuite(Suit suit) {
         List<ClassicCard> cards = new ArrayList<>();
         for (ClassicCard card : this.cards) {
-            if (card.getSuite().equals(suite)) {
+            if (card.getSuit().equals(suit)) {
                 cards.add(card);
             }
         }

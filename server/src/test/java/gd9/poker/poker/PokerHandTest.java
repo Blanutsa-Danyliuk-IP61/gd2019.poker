@@ -1,6 +1,8 @@
 package gd9.poker.poker;
 
 import gd2019.poker.model.*;
+import gd2019.poker.model.enums.PokerHandType;
+import gd2019.poker.model.enums.Suit;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -9,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static gd2019.poker.model.ClassicCard.*;
-import static gd2019.poker.model.Suite.*;
+import static gd2019.poker.model.enums.Suit.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.util.AssertionErrors.assertFalse;
@@ -118,8 +120,9 @@ public class PokerHandTest {
     }
 
 
-    private static ClassicCard card(Suite suite, int rank) {
-        return new ClassicCard(suite, rank);
+    private static ClassicCard card(Suit suit, int rank) {
+        return null;
+        //return new ClassicCard(suite, rank);
     }
 
 }

@@ -1,4 +1,4 @@
-package gd2019.poker.model;
+package gd2019.poker.model.enums;
 
 public enum EventType {
 

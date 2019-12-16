@@ -1,7 +1,10 @@
 package gd2019.poker.model;
 
-import gd2019.poker.model.dto.PlayerDTO;
-import gd2019.poker.model.dto.RequestDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import gd2019.poker.dto.PlayerDTO;
+import gd2019.poker.dto.RequestDTO;
+import gd2019.poker.model.enums.EventType;
+import gd2019.poker.model.enums.PlayerStatus;
 import lombok.Data;
 
 import java.util.Arrays;
@@ -13,23 +16,22 @@ import java.util.stream.Collectors;
 @Data
 public class Player {
 
-    private static final String DEFAULT_NAME = "Player ";
-
     private UUID id;
-    private PlayerStatus status;
+    private PlayerStatus status = PlayerStatus.waiting;
     private String name;
+
+    @JsonIgnore
     private Tournament currentTournament;
-    private Integer currentBalance;
-    private Integer currentBid;
+    private int currentBalance = Tournament.DEFAULT_BALANCE;
+    private int currentBid;
     private Integer prize;
-    private Boolean activeInGame;
     private List<ClassicCard> cards;
     private PokerHandResult handResult;
     private String sessionId;
 
-    public Player(UUID id){
+    public Player(UUID id, String name){
         this.id = id;
-        this.name = DEFAULT_NAME + id;
+        this.name = name;
     }
 
     public void calculateBalanceAfterGame(){
@@ -51,9 +53,11 @@ public class Player {
 
     public PlayerDTO toDTO(){
         return PlayerDTO.builder()
+                .id(id.toString())
                 .name(name)
                 .balance(currentBalance)
                 .bid(currentBid)
+                .status(status)
                 .build();
     }
 
@@ -79,5 +83,4 @@ public class Player {
 
         return dto;
     }
-
 }

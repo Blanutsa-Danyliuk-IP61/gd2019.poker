@@ -1,11 +1,12 @@
-package gd2019.poker.model.dto;
+package gd2019.poker.dto;
 
-import gd2019.poker.model.EventType;
+import gd2019.poker.dto.CardDTO;
+import gd2019.poker.dto.PlayerDTO;
+import gd2019.poker.model.enums.EventType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;

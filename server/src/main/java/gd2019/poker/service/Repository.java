@@ -1,15 +1,13 @@
 package gd2019.poker.service;
 
-import gd2019.poker.errors.ApiError;
+import gd2019.poker.dto.StartRoundResponse;
 import gd2019.poker.model.Tournament;
-import gd2019.poker.model.TournamentStatus;
+import gd2019.poker.model.enums.TournamentStatus;
 import gd2019.poker.model.Player;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Mykola Danyliuk
@@ -19,12 +17,7 @@ public class Repository {
 
     private List<Player> players = new ArrayList<>();
     private List<Tournament> tournaments = new ArrayList<>();
-
-    {
-        Player player = new Player(UUID.randomUUID());
-        player.setName("dima");
-        players.add(player);
-    }
+    private Map<String, StartRoundResponse> toSend = new HashMap<>();
 
     public Player getPlayerByID(UUID id){
         for (Player player: players) {
@@ -33,7 +26,7 @@ public class Repository {
             }
         }
 
-        throw new ApiError("User not found");
+        return null;
     }
 
     public Tournament createGame(){
@@ -58,6 +51,33 @@ public class Repository {
     }
 
     public boolean isUserRegistered(String id) {
-        return players.stream().noneMatch(player -> UUID.fromString(id).equals(player.getId()));
+        return players.stream().anyMatch(player -> UUID.fromString(id).equals(player.getId()));
+    }
+
+    public void addPlayer(Player player) {
+        players.add(player);
+    }
+
+    public Player findPlayerBySessionId(String sessionId) {
+        for (Player player : players) {
+            if (sessionId.equals(player.getSessionId())) {
+                return player;
+            }
+        }
+
+        return null;
+    }
+
+    public void deleteTournament(Tournament tournament) {
+        this.tournaments.remove(tournament);
+    }
+
+    public void addToSend(String sessionId, StartRoundResponse response) {
+        toSend.put(sessionId, response);
+    }
+
+    public StartRoundResponse getToSendBySessionId(String sessionId) {
+        return toSend.remove(sessionId);
     }
 }
+

@@ -1,30 +1,33 @@
 package gd2019.poker.model;
 
+import gd2019.poker.dto.*;
+import gd2019.poker.model.enums.BlindType;
+import gd2019.poker.model.enums.PlayerStatus;
+import gd2019.poker.model.enums.TournamentStatus;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Tournament {
 
     private static final PokerHandEval eval = PokerHandEval.defaultEvaluator();
-    private static final int DEFAULT_BALANCE = 1000;
-    private static final int DEFAULT_SMALL_BLIND = 25;
-    private static final int DEFAULT_BIG_BLIND = 10;
+    public static final int DEFAULT_BALANCE = 1000;
+    public static final int DEFAULT_SMALL_BLIND = 10;
+    public static final int DEFAULT_BIG_BLIND = 20;
 
-    private List<Player> players;
+    private List<Player> players = new ArrayList<>();
     private int buttonIndex;
     private int smallBlindValue;
     private int bigBlindValue;
     private TournamentStatus status;
     private int currentPlayerIndex;
-    private int games;
-    private DeckOfCards deckOfCards;
+    private DeckOfCards deckOfCards = new DeckOfCards();
     private List<ClassicCard> tableCards = new ArrayList<>();
-    private int rounds;
+    private int round;
+    private int prizePoll;
+    private UUID smallBlindId;
 
     public Tournament(){
-        this.players = new ArrayList<>();
-        games = 0;
-        buttonIndex = -1;
         smallBlindValue = DEFAULT_SMALL_BLIND;
         bigBlindValue = DEFAULT_BIG_BLIND;
     }
@@ -41,91 +44,148 @@ public class Tournament {
         player.setCurrentTournament(null);
     }
 
-    private void removeLosers(){
-        for(Player player: players){
-            if(player.getCurrentBalance() == 0){
-                removeLoser(player);
-            }
-        }
-    }
-
-    private void removeLoser(Player player){
-        players.remove(player);
-        player.setStatus(PlayerStatus.lose);
-        player.setCurrentTournament(null);
-        buttonIndex--;
-    }
-
     public void start(){
+        this.round = 0;
+
         for (Player player: players) {
             player.setStatus(PlayerStatus.playing);
             player.setCurrentBalance(DEFAULT_BALANCE);
-        }
-        status = TournamentStatus.active;
-        startNewGame();
-    }
-
-    private void startNewGame(){
-        this.deckOfCards = new DeckOfCards();
-        this.rounds = 0;
-        for(Player player: players){
             player.setCards(deckOfCards.spread(2));
         }
-        tableCards = deckOfCards.spread(2);
-        getBidsFromBlinds();
-        startRound();
+
+        status = TournamentStatus.active;
     }
 
-    private void getBidsFromBlinds(){
-        Player smallBlindPlayer = players.get(buttonIndex + 1);
-        smallBlindPlayer.setCurrentBid(smallBlindValue);
+    public StartRoundResponse startNewRound() {
+        this.round++;
 
-        Player bigBlindPlayer = players.get(buttonIndex + 2);
-        bigBlindPlayer.setCurrentBid(bigBlindValue);
+        Player smallBlindPlayer = players.get(buttonIndex);
+        BlindResponse smallBlindResponse = blind(smallBlindPlayer, BlindType.SMALL, smallBlindValue);
+        this.smallBlindId = smallBlindPlayer.getId();
 
-        currentPlayerIndex = 2;
+        Player bigBlindPlayer = players.get(buttonIndex + 1);
+        BlindResponse bigBlindResponse = blind(bigBlindPlayer, BlindType.BIG, bigBlindValue);
+
+        prizePoll =+ smallBlindResponse.getBlind() + bigBlindResponse.getBlind();
+
+        currentPlayerIndex = buttonIndex + 2;
+        buttonIndex++;
+
+        return StartRoundResponse.builder()
+                .currentPlayerId(getCurrentPlayerId())
+                .prizePool(prizePoll)
+                .bigBlind(bigBlindResponse)
+                .smallBlind(smallBlindResponse)
+                .roundIndex(round)
+                .build();
+    }
+
+    private UUID getCurrentPlayerId() {
+        return players.get(currentPlayerIndex % players.size()).getId();
+    }
+
+    private BlindResponse blind(Player player, BlindType type, int blind) {
+        int balance = player.getCurrentBalance();
+
+        if (balance < blind) {
+            player.setCurrentBid(balance);
+            player.setStatus(PlayerStatus.allin);
+            player.setCurrentBalance(0);
+        } else {
+            player.setCurrentBid(blind);
+            player.setCurrentBalance(balance - blind);
+        }
+
+        return BlindResponse.builder()
+                .playerId(player.getId())
+                .blind(player.getCurrentBid())
+                .balance(player.getCurrentBalance())
+                .type(type)
+                .build();
     }
 
     private void startRound(){
         tableCards.add(deckOfCards.spread());
-        rounds++;
+        round++;
     }
 
-    private void recalculateIndexesBeforeGame(){
-        buttonIndex++;
-        if(games % 3 == 0){
-            smallBlindValue *= 2;
-            bigBlindValue *= 2;
-        }
-    }
-
-    Player getCurrentPlayer(){
+    public Player getCurrentPlayer(){
         return players.get(currentPlayerIndex);
     }
 
-    private void incrementCurrentPlayerIndex(){
-        do {
-            currentPlayerIndex++;
-        } while (!players.get(currentPlayerIndex).getActiveInGame());
+    public CallResponse call(Player player) {
+        int liveBet = getLiveBet();
+        int bet;
+
+        int balance = player.getCurrentBalance();
+        if (balance < liveBet) {
+            player.setCurrentBid(player.getCurrentBid() + balance);
+            player.setStatus(PlayerStatus.allin);
+            player.setCurrentBalance(0);
+            bet = balance;
+        } else {
+            player.setCurrentBid(liveBet);
+            player.setCurrentBalance(balance - liveBet);
+            bet = liveBet;
+        }
+
+        prizePoll += bet;
+        currentPlayerIndex++;
+
+        return CallResponse.builder()
+                .callPlayerId(player.getId())
+                .callPlayerBalance(player.getCurrentBalance())
+                .prizePool(prizePoll)
+                .callPlayerBet(player.getCurrentBid())
+                .currentPlayerId(getCurrentPlayerId())
+                .callPlayerBet(bet)
+                .allIn(player.getStatus() == PlayerStatus.allin)
+                .build();
     }
 
-    public Integer getLiveBet(){
+    public FoldResponse fold(Player player) {
+        player.setStatus(PlayerStatus.folded);
+        player.setCards(new ArrayList<>());
+        player.setCurrentBid(0);
+
+        return FoldResponse.builder()
+                .foldedPlayerId(player.getId())
+                .currentPlayerId(null)
+                .build();
+    }
+
+    public int getLiveBet(){
         return players.stream().map(Player::getCurrentBid).max(Comparator.naturalOrder()).get();
     }
 
+    public int getActivePlayers() {
+        players.stream().filter(p -> p.getStatus() != PlayerStatus.folded && p.getStatus() != PlayerStatus.allin).count();
+    }
+
+    public Player nextPlayer() {
+        List<Player> tempPlayers = new ArrayList<>(players);
+        tempPlayers.addAll(players);
+
+        Player current;
+        for (Player tempPlayer : tempPlayers) {
+            currentPlayerIndex
+        }
+    }
+
     public void checkStatusesAfterBid(){
-        if(getActiveInGamePlayers().size() == 1){
+        if (getActivePlayers() == 1){
             finishGame();
         }
-        if(allBidsAreMatched()){
-            if(rounds == 3){
-                finishGame();
-            } else {
-                startRound();
-            }
-        } else {
-            incrementCurrentPlayerIndex();
-        }
+
+//        if(allBidsAreMatched()){
+//            if(round == 3){
+//                finishGame();
+//            } else {
+//                startRound();
+//            }
+//        } else {
+//            currentPlayerIndex++;
+//        }
     }
 
     private void finishGame(){
@@ -133,7 +193,6 @@ public class Tournament {
         sortByHandResults();
         calculatePrize();
         calculateBalance();
-        removeLosers();
         handleGameFinish();
     }
 
@@ -148,13 +207,13 @@ public class Tournament {
 
     private void calculatePrize(){
         for(Player player: players){
-            if(player.getActiveInGame()){
-                int playerPrize = possiblePrize(player);
-                player.setPrize(playerPrize);
-                players.forEach(p -> p.setCurrentBid(Math.max(0, p.getCurrentBid() - playerPrize)));
-            } else {
-                player.setPrize(0);
-            }
+//            if(player.getActiveInGame()){
+//                int playerPrize = possiblePrize(player);
+//                player.setPrize(playerPrize);
+//                players.forEach(p -> p.setCurrentBid(Math.max(0, p.getCurrentBid() - playerPrize)));
+//            } else {
+//                player.setPrize(0);
+//            }
         }
     }
 
@@ -176,21 +235,17 @@ public class Tournament {
         players.sort(Comparator.comparing(Player::getHandResult).reversed());
     }
 
-    private boolean allBidsAreMatched(){
-        Set<Integer> activePlayersCurrentBids = new HashSet<>();
-        for (Player player : getActiveInGamePlayers()) {
-            Integer currentBid = player.getCurrentBid();
-            Integer currentBalance = player.getCurrentBalance();
-            if(currentBid != 0 && currentBalance != 0){
-                activePlayersCurrentBids.add(currentBid);
-            }
-        }
-        return activePlayersCurrentBids.size() == 1;
-    }
-
-    private List<Player> getActiveInGamePlayers(){
-        return players.stream().filter(Player::getActiveInGame).collect(Collectors.toList());
-    }
+//    private boolean allBidsAreMatched(){
+//        Set<Integer> activePlayersCurrentBids = new HashSet<>();
+//        for (Player player : getActiveInGamePlayers()) {
+//            Integer currentBid = player.getCurrentBid();
+//            Integer currentBalance = player.getCurrentBalance();
+//            if(currentBid != 0 && currentBalance != 0){
+//                activePlayersCurrentBids.add(currentBid);
+//            }
+//        }
+//        return activePlayersCurrentBids.size() == 1;
+//    }
 
     private void handleGameFinish(){
         if(players.size() == 1){
@@ -199,25 +254,22 @@ public class Tournament {
             status = TournamentStatus.finished;
             winner.setCurrentTournament(null);
         } else {
-            recalculateIndexesBeforeGame();
-            startNewGame();
+            //startNewGame();
         }
+    }
+
+    public TournamentDTO toDto() {
+        return TournamentDTO.builder()
+                .players(players.stream()
+                        .map(Player::toDTO).collect(Collectors.toList())
+                )
+                .prizePool(prizePoll)
+                .status(status)
+                .build();
     }
 
     public static PokerHandEval getEval() {
         return eval;
-    }
-
-    public static int getDefaultBalance() {
-        return DEFAULT_BALANCE;
-    }
-
-    public static int getDefaultSmallBlind() {
-        return DEFAULT_SMALL_BLIND;
-    }
-
-    public static int getDefaultBigBlind() {
-        return DEFAULT_BIG_BLIND;
     }
 
     public List<Player> getPlayers() {
@@ -268,14 +320,6 @@ public class Tournament {
         this.currentPlayerIndex = currentPlayerIndex;
     }
 
-    public int getGames() {
-        return games;
-    }
-
-    public void setGames(int games) {
-        this.games = games;
-    }
-
     public DeckOfCards getDeckOfCards() {
         return deckOfCards;
     }
@@ -292,11 +336,11 @@ public class Tournament {
         this.tableCards = tableCards;
     }
 
-    public int getRounds() {
-        return rounds;
+    public int getRound() {
+        return round;
     }
 
-    public void setRounds(int rounds) {
-        this.rounds = rounds;
+    public void setRound(int rounds) {
+        this.round = rounds;
     }
 }

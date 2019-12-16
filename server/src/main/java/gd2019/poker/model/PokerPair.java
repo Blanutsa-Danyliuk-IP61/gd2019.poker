@@ -1,5 +1,8 @@
 package gd2019.poker.model;
 
+import gd2019.poker.model.enums.PokerHandType;
+import gd2019.poker.model.enums.Rank;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

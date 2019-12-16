@@ -1,5 +1,8 @@
 package gd2019.poker.model;
 
+import gd2019.poker.model.enums.Rank;
+import gd2019.poker.model.enums.Suit;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,11 +16,13 @@ public class DeckOfCards {
 
     public DeckOfCards() {
         allCards = new LinkedList<>();
-        for(Suite suite : Suite.values()){
+
+        for(Suit suit : Suit.values()){
             for(Rank rank : Rank.values()){
-                allCards.add(new ClassicCard(suite, rank.getValue()));
+                allCards.add(new ClassicCard(suit, rank));
             }
         }
+
         Collections.shuffle(allCards);
     }
 

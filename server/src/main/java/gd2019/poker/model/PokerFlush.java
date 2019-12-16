@@ -1,5 +1,8 @@
 package gd2019.poker.model;
 
+import gd2019.poker.model.enums.PokerHandType;
+import gd2019.poker.model.enums.Suit;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +16,9 @@ public class PokerFlush implements PokerHandResultProducer {
     @Override
     public PokerHandResult resultFor(PokerHandAnalyze analyze) {
         List<PokerHandResult> results = new ArrayList<PokerHandResult>();
-        for (Suite suite : Suite.values()) {
+        for (Suit suit : Suit.values()) {
 
-            PokerHandAnalyze suiteHand = analyze.filterBySuite(suite);
+            PokerHandAnalyze suiteHand = analyze.filterBySuite(suit);
             if (suiteHand.size() < HAND_SIZE)
                 continue; // Not enough cards to make a complete hand
 
