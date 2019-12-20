@@ -4,7 +4,7 @@ import { getPlayers, isGameActive, getPrizePool } from '../../util/redux/reducer
 import { Grid, Typography } from '@material-ui/core';
 
 import useStyles from './styles';
-import Coins from '../Coins';
+import Coins from '../../components/Coins';
 
 const BidPanel = (props) => {
 

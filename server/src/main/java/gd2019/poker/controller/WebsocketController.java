@@ -1,5 +1,6 @@
 package gd2019.poker.controller;
 
+import gd2019.poker.dto.ChatMessage;
 import gd2019.poker.dto.ConnectRequest;
 import gd2019.poker.service.GameService;
 import org.springframework.messaging.handler.annotation.Header;
@@ -21,11 +22,6 @@ public class WebsocketController {
         this.gameService.handleConnected(request, sessionId);
     }
 
-    @MessageMapping("/startFirstRound")
-    public void startFirstRound(@Header("simpSessionId") String sessionId) {
-        this.gameService.handleStartFirstRoundResponse(sessionId);
-    }
-
     @MessageMapping("/call")
     public void call(@Header("simpSessionId") String sessionId) {
         this.gameService.handleCall(sessionId);
@@ -39,5 +35,10 @@ public class WebsocketController {
     @MessageMapping("/fold")
     public void fold(@Header("simpSessionId") String sessionId) {
         this.gameService.handleCall(sessionId);
+    }
+
+    @MessageMapping("/message")
+    public void chatMessage(@Payload ChatMessage message, @Header("simpSessionId") String sessionId) {
+        this.gameService.handleNewChatMessage(sessionId, message);
     }
 }

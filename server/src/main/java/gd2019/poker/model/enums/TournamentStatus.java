@@ -5,7 +5,6 @@ package gd2019.poker.model.enums;
  */
 public enum TournamentStatus {
 
-    waiting,
-    active,
-    finished
+    WAITING,
+    ACTIVE
 }

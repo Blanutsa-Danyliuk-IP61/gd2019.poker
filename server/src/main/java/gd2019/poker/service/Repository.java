@@ -17,7 +17,6 @@ public class Repository {
 
     private List<Player> players = new ArrayList<>();
     private List<Tournament> tournaments = new ArrayList<>();
-    private Map<String, StartRoundResponse> toSend = new HashMap<>();
 
     public Player getPlayerByID(UUID id){
         for (Player player: players) {
@@ -31,14 +30,14 @@ public class Repository {
 
     public Tournament createGame(){
         Tournament tournament = new Tournament();
-        tournament.setStatus(TournamentStatus.waiting);
+        tournament.setStatus(TournamentStatus.WAITING);
         tournaments.add(tournament);
         return tournament;
     }
 
     public Tournament getGameByStatusIsWaiting(){
         for(Tournament tournament : tournaments){
-            if(tournament.getStatus().equals(TournamentStatus.waiting)){
+            if(tournament.getStatus().equals(TournamentStatus.WAITING)){
                 return tournament;
             }
         }
@@ -70,14 +69,6 @@ public class Repository {
 
     public void deleteTournament(Tournament tournament) {
         this.tournaments.remove(tournament);
-    }
-
-    public void addToSend(String sessionId, StartRoundResponse response) {
-        toSend.put(sessionId, response);
-    }
-
-    public StartRoundResponse getToSendBySessionId(String sessionId) {
-        return toSend.remove(sessionId);
     }
 }
 

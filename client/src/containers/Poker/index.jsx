@@ -6,9 +6,10 @@ import { connect } from 'react-redux';
 import { getLogin, isNewUser } from '../../util/redux/reducers/main';
 import { connectWS } from '../../util/websocket';
 
-import LoginInputDialog from '../LoginInput';
+import LoginInputDialog from '../../components/LoginInput';
 import GameArea from '../GameArea';
-import ChatAndInfoPanel from '../ChatAndInfoPanel';
+import ChatAndInfoPanel from '../../components/ChatAndInfoPanel';
+import MessageDialog from "../../components/MessageDialog";
 
 const styles = {
     root: {
@@ -52,7 +53,10 @@ class Poker extends Component {
                 >
                     <ChatAndInfoPanel />
                 </Grid>
+
                 <LoginInputDialog open={isNewUser}/>
+                <MessageDialog open={false} text='The game begins'/>
+
             </Grid>
         );
     }

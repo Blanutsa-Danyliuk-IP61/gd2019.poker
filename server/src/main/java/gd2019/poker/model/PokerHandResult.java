@@ -10,6 +10,7 @@ import java.util.List;
  * Data for a found poker hand. Provides data for the type of poker hand, the primary rank and secondary rank, and kickers. Including methods for sorting. Also implements hashCode and equals.
  */
 public class PokerHandResult implements Comparable<PokerHandResult> {
+
     private final PokerHandType type;
     private final int primaryRank;
     private final int secondaryRank;

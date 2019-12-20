@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { Grid } from '@material-ui/core';
-import Card from '../Card';
+import Card from '../../components/Card';
 
 
 import { getTableCards } from '../../util/redux/reducers/main';

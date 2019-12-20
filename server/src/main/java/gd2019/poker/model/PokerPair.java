@@ -67,5 +67,4 @@ public class PokerPair implements PokerHandResultProducer {
 
         return new PokerHandResult(PokerHandType.HIGH_CARD, 0, 0, analyze.getCards());
     }
-
 }

@@ -17,15 +17,18 @@ public class Tournament {
 
     private List<Player> players = new ArrayList<>();
     private int buttonIndex;
+    private Player smallBlindPlayer;
+    private Player bigBlindPlayer;
     private int smallBlindValue;
     private int bigBlindValue;
     private TournamentStatus status;
-    private int currentPlayerIndex;
+    private Player currentPlayer;
     private DeckOfCards deckOfCards = new DeckOfCards();
     private List<ClassicCard> tableCards = new ArrayList<>();
     private int round;
     private int prizePoll;
     private UUID smallBlindId;
+    private List<ChatMessage> messages = new ArrayList<>();
 
     public Tournament(){
         smallBlindValue = DEFAULT_SMALL_BLIND;
@@ -34,13 +37,13 @@ public class Tournament {
 
     public void addPlayer(Player player){
         players.add(player);
-        player.setStatus(PlayerStatus.waiting);
+        player.setStatus(PlayerStatus.WAITING);
         player.setCurrentTournament(this);
     }
 
     public void removeDisconnectedPlayer(Player player){
         players.remove(player);
-        player.setStatus(PlayerStatus.disconnected);
+        player.setStatus(PlayerStatus.DISCONNECTED);
         player.setCurrentTournament(null);
     }
 
@@ -48,31 +51,37 @@ public class Tournament {
         this.round = 0;
 
         for (Player player: players) {
-            player.setStatus(PlayerStatus.playing);
+            player.setStatus(PlayerStatus.PLAYING);
             player.setCurrentBalance(DEFAULT_BALANCE);
             player.setCards(deckOfCards.spread(2));
         }
 
-        status = TournamentStatus.active;
+        status = TournamentStatus.ACTIVE;
     }
 
     public StartRoundResponse startNewRound() {
         this.round++;
 
-        Player smallBlindPlayer = players.get(buttonIndex);
+        if (round == 1) {
+            smallBlindPlayer = players.get(0);
+            bigBlindPlayer = players.get(1);
+        } else {
+            smallBlindPlayer = nextPlayer(smallBlindPlayer.getId());
+            bigBlindPlayer = nextPlayer(bigBlindPlayer.getId());
+        }
+        currentPlayer = nextPlayer(bigBlindPlayer.getId());
+
+        Player smallBlindPlayer = this.smallBlindPlayer;
         BlindResponse smallBlindResponse = blind(smallBlindPlayer, BlindType.SMALL, smallBlindValue);
         this.smallBlindId = smallBlindPlayer.getId();
 
-        Player bigBlindPlayer = players.get(buttonIndex + 1);
+        Player bigBlindPlayer = this.bigBlindPlayer;
         BlindResponse bigBlindResponse = blind(bigBlindPlayer, BlindType.BIG, bigBlindValue);
 
         prizePoll =+ smallBlindResponse.getBlind() + bigBlindResponse.getBlind();
 
-        currentPlayerIndex = buttonIndex + 2;
-        buttonIndex++;
-
         return StartRoundResponse.builder()
-                .currentPlayerId(getCurrentPlayerId())
+                .currentPlayerId(currentPlayer.getId())
                 .prizePool(prizePoll)
                 .bigBlind(bigBlindResponse)
                 .smallBlind(smallBlindResponse)
@@ -80,16 +89,12 @@ public class Tournament {
                 .build();
     }
 
-    private UUID getCurrentPlayerId() {
-        return players.get(currentPlayerIndex % players.size()).getId();
-    }
-
     private BlindResponse blind(Player player, BlindType type, int blind) {
         int balance = player.getCurrentBalance();
 
         if (balance < blind) {
             player.setCurrentBid(balance);
-            player.setStatus(PlayerStatus.allin);
+            player.setStatus(PlayerStatus.ALL_IN);
             player.setCurrentBalance(0);
         } else {
             player.setCurrentBid(blind);
@@ -109,9 +114,9 @@ public class Tournament {
         round++;
     }
 
-    public Player getCurrentPlayer(){
-        return players.get(currentPlayerIndex);
-    }
+//    public Player getCurrentPlayer(){
+//        return players.get(currentPlayerIndex);
+//    }
 
     public CallResponse call(Player player) {
         int liveBet = getLiveBet();
@@ -120,7 +125,7 @@ public class Tournament {
         int balance = player.getCurrentBalance();
         if (balance < liveBet) {
             player.setCurrentBid(player.getCurrentBid() + balance);
-            player.setStatus(PlayerStatus.allin);
+            player.setStatus(PlayerStatus.ALL_IN);
             player.setCurrentBalance(0);
             bet = balance;
         } else {
@@ -130,21 +135,21 @@ public class Tournament {
         }
 
         prizePoll += bet;
-        currentPlayerIndex++;
+        currentPlayer = nextPlayer(currentPlayer.getId());
 
         return CallResponse.builder()
                 .callPlayerId(player.getId())
                 .callPlayerBalance(player.getCurrentBalance())
                 .prizePool(prizePoll)
                 .callPlayerBet(player.getCurrentBid())
-                .currentPlayerId(getCurrentPlayerId())
+                .currentPlayerId(currentPlayer.getId())
                 .callPlayerBet(bet)
-                .allIn(player.getStatus() == PlayerStatus.allin)
+                .allIn(player.getStatus() == PlayerStatus.ALL_IN)
                 .build();
     }
 
     public FoldResponse fold(Player player) {
-        player.setStatus(PlayerStatus.folded);
+        player.setStatus(PlayerStatus.FOLDED);
         player.setCards(new ArrayList<>());
         player.setCurrentBid(0);
 
@@ -158,18 +163,26 @@ public class Tournament {
         return players.stream().map(Player::getCurrentBid).max(Comparator.naturalOrder()).get();
     }
 
-    public int getActivePlayers() {
-        players.stream().filter(p -> p.getStatus() != PlayerStatus.folded && p.getStatus() != PlayerStatus.allin).count();
+    public long getActivePlayers() {
+        return players.stream().filter(p -> p.getStatus() != PlayerStatus.FOLDED && p.getStatus() != PlayerStatus.ALL_IN).count();
     }
 
-    public Player nextPlayer() {
+    public Player nextPlayer(UUID playerId) {
         List<Player> tempPlayers = new ArrayList<>(players);
         tempPlayers.addAll(players);
 
-        Player current;
+        boolean afterCurrent = false;
         for (Player tempPlayer : tempPlayers) {
-            currentPlayerIndex
+            if (tempPlayer.getId().equals(playerId)) {
+                afterCurrent = true;
+            }
+
+            if (afterCurrent && !tempPlayer.getId().equals(playerId)) {
+                return tempPlayer;
+            }
         }
+
+        return null;
     }
 
     public void checkStatusesAfterBid(){
@@ -184,7 +197,6 @@ public class Tournament {
 //                startRound();
 //            }
 //        } else {
-//            currentPlayerIndex++;
 //        }
     }
 
@@ -235,23 +247,23 @@ public class Tournament {
         players.sort(Comparator.comparing(Player::getHandResult).reversed());
     }
 
-//    private boolean allBidsAreMatched(){
-//        Set<Integer> activePlayersCurrentBids = new HashSet<>();
-//        for (Player player : getActiveInGamePlayers()) {
-//            Integer currentBid = player.getCurrentBid();
-//            Integer currentBalance = player.getCurrentBalance();
-//            if(currentBid != 0 && currentBalance != 0){
-//                activePlayersCurrentBids.add(currentBid);
-//            }
-//        }
-//        return activePlayersCurrentBids.size() == 1;
-//    }
+    private boolean allBidsAreMatched(){
+        Optional<Integer> max = players.stream().map(Player::getCurrentBid).max(Integer::compareTo);
+
+        for (Player player : players) {
+            if (player.getCurrentBid() != max.get() && player.getStatus() != PlayerStatus.FOLDED &&
+                    player.getStatus() != PlayerStatus.ALL_IN) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     private void handleGameFinish(){
         if(players.size() == 1){
             Player winner = players.get(0);
-            winner.setStatus(PlayerStatus.winner);
-            status = TournamentStatus.finished;
+            status = TournamentStatus.ACTIVE;
             winner.setCurrentTournament(null);
         } else {
             //startNewGame();
@@ -263,6 +275,7 @@ public class Tournament {
                 .players(players.stream()
                         .map(Player::toDTO).collect(Collectors.toList())
                 )
+                .messages(messages)
                 .prizePool(prizePoll)
                 .status(status)
                 .build();
@@ -312,14 +325,6 @@ public class Tournament {
         this.status = status;
     }
 
-    public int getCurrentPlayerIndex() {
-        return currentPlayerIndex;
-    }
-
-    public void setCurrentPlayerIndex(int currentPlayerIndex) {
-        this.currentPlayerIndex = currentPlayerIndex;
-    }
-
     public DeckOfCards getDeckOfCards() {
         return deckOfCards;
     }
@@ -342,5 +347,13 @@ public class Tournament {
 
     public void setRound(int rounds) {
         this.round = rounds;
+    }
+
+    public void addChatMessage(ChatMessage message) {
+        this.messages.add(message);
+    }
+
+    public void removeChatMessages() {
+        this.messages = new ArrayList<>();
     }
 }

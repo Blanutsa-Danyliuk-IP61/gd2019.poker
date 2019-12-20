@@ -1,7 +1,8 @@
 import React from 'react';
 
 import { Grid } from '@material-ui/core';
-import InfoPanel from '../InfoPanel';
+import InfoPanel from '../../containers/InfoPanel';
+import Chat from '../../containers/Chat';
 
 import useStyles from './styles';
 
@@ -17,18 +18,21 @@ const ChatAndInfoPanel = () => {
             className={classes.root}
             justify='space-around'
         >
-            {/*<Grid*/}
-            {/*    key='chat'*/}
-            {/*    item xs={5}*/}
-            {/*    className={classes.item}*/}
-            {/*/>*/}
             <Grid
                 key='info-panel'
                 item
                 xs={5}
                 className={classes.item}
             >
-                <InfoPanel messages={[]} />
+                <InfoPanel/>
+            </Grid>
+            <Grid
+                key='char'
+                item
+                xs={5}
+                className={classes.item}
+            >
+                <Chat/>
             </Grid>
         </Grid>
     );

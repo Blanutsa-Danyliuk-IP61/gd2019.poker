@@ -18,8 +18,21 @@ const useStyles = makeStyles({
         fontSize: '0.8em',
         fontWeight: 'bold'
     },
+    status: {
+        display: 'inline-box',
+        fontSize: '1em',
+        fontWeight: 'bold'
+    },
+    statusContainer: {
+        position: 'absolute',
+        top: '33%',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+    },
     cardContainer: {
-        padding: '10px'
+        height: '100%',
+        padding: '10px',
+        position: 'relative'
     }
 });
 

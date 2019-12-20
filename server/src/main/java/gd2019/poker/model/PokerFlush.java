@@ -35,5 +35,4 @@ public class PokerFlush implements PokerHandResultProducer {
 
         return PokerHandResult.returnBest(results);
     }
-
 }

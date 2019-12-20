@@ -1,25 +1,21 @@
 import React, { Fragment } from 'react';
-import { connect } from 'react-redux';
 
-import Card from '../Card';
+import Card from '../../components/Card';
 import { Grid, Typography, } from '@material-ui/core';
 
 import useStyles from './styles';
-import Coins from '../Coins';
-import { getCurrentPlayerId, isGameActive } from '../../util/redux/reducers/main';
+import Coins from '../../components/Coins';
 
 const PlayerPanel = (props) => {
 
     const classes = useStyles();
     const { shown, isGameActive, currentPlayerId } = props;
-    const { name, balance, folded, id } = props.playerData;
-
-    let { cards } = props.playerData;
+    const { name, balance, id, status, cards } = props.playerData;
 
     const current = currentPlayerId === id;
 
     return (
-        <Grid container className={classes.root} style={{backgroundColor: current ? '#598A8B' : 'rgb(0, 61, 0)' }}>
+        <Grid key={id + status} container className={classes.root} style={{backgroundColor: current ? '#598A8B' : 'rgb(0, 61, 0)' }}>
             <Grid item container xs={12}>
                 <Grid item container xs={6} justify='center'>
                     <Typography component='h6' className={classes.login}>
@@ -35,8 +31,12 @@ const PlayerPanel = (props) => {
                     </div>
                 </Grid>
             </Grid>
-            <Grid item container xs={12} justify='space-around' className={classes.cardContainer}>
-                { isGameActive && name ? ( folded ? <p>Folded!</p> :
+            <Grid item container xs={12} justify='space-around' className={classes.cardContainer}
+                style={{
+                    opacity: status === 'FOLDED' || status === 'DISCONNECTED' ? '0.8' : '1'
+                }}
+            >
+                { isGameActive && name ?
                         <Fragment>
                             <Grid key='first-player-card' item container xs={5} justify='center'>
                                 <Card
@@ -50,17 +50,26 @@ const PlayerPanel = (props) => {
                                     card={cards[1]}
                                 />
                             </Grid>
-                        </Fragment>
-                    ) : ''
+                        </Fragment> : ''
                 }
+
+                {
+                    status === 'FOLDED' ?
+                        <Grid item className={classes.statusContainer}>
+                            <Typography component='h6' className={classes.status}>Folded</Typography>
+                        </Grid> : ''
+                }
+
+                {
+                    status === 'DISCONNECTED' ?
+                        <Grid item className={classes.statusContainer}>
+                            <Typography component='h6' className={classes.status}>Disconnected</Typography>
+                        </Grid> : ''
+                }
+
             </Grid>
         </Grid>
     );
 };
 
-const mapStateToProps = (state) => ({
-    isGameActive: isGameActive(state),
-    currentPlayerId: getCurrentPlayerId(state)
-});
-
-export default connect(mapStateToProps)(PlayerPanel);
+export default PlayerPanel;

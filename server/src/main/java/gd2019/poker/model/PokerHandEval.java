@@ -7,6 +7,7 @@ import java.util.List;
  * Class to analyze poker hands by using a collection of {@link PokerHandResultProducer}s and return a {@link PokerHandResult}
  */
 public class PokerHandEval {
+
     public void addTest(PokerHandResultProducer test) {
         this.tests.add(test);
     }

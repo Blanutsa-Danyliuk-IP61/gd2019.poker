@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import Poker from './components/Poker';
+import Poker from './containers/Poker';
 import '../src/util/websocket';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';

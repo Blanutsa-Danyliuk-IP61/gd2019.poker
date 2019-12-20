@@ -1,0 +1,40 @@
+.chat-container {
+    height: 100%;
+    width: 100%;
+    font-size: 14px;
+}
+.chat-container .form {
+    height: 35px;
+    background: #ccc;
+    width: 100%;
+}
+.chat-container .form .name {
+    border: 0;
+    padding: 10px;
+    width: 15%;
+    margin-right: 5px;
+}
+.chat-container .form .msg {
+    border: 0;
+    padding: 10px;
+    width: calc(100% - 80px);
+}
+.chat-container .form button {
+    color: #406F80;
+    border: none;
+    width: 60px;
+    padding: 10px;
+}
+.chat-container .messages {
+    height: calc(100% - 70px);
+    list-style-type: none;
+    overflow-y: auto;
+    margin: 15px 0;
+    padding: 0;
+}
+.chat-container .messages li {
+    padding: 5px 10px;
+}
+.chat-container .msgSender {
+    font-weight: bold;
+}

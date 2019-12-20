@@ -12,5 +12,6 @@ public class TournamentDTO {
 
     private List<PlayerDTO> players;
     private TournamentStatus status;
+    private List<ChatMessage> messages;
     private int prizePool;
 }

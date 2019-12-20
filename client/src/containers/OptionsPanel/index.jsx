@@ -6,7 +6,7 @@ import Timer from '../Timer';
 
 import useStyles from './styles';
 import { getCurrentPlayerId, getPlayer } from '../../util/redux/reducers/main';
-import Coins from '../Coins';
+import Coins from '../../components/Coins';
 import { getPlayerId } from '../../util/localstorage';
 import { call, fold, check } from '../../util/websocket';
 

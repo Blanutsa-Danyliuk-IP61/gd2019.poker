@@ -13,7 +13,8 @@ const initialState = {
     infoMessages: [],
     players: [],
     isGameActive: false,
-    currentPlayerId: null
+    currentPlayerId: null,
+    chatMessages: []
 };
 
 // actions types
@@ -32,6 +33,7 @@ const INIT = 'REDUX_ACTION_INIT';
 const NEW_PLAYER = 'REDUX_ACTION_NEW_PLAYER';
 const PLAYER_DISCONNECTED = 'REDUX_ACTION_PLAYER_DISCONNECTED';
 const CALL = 'REDUX_ACTION_CALL';
+const NEW_CHAT_MESSAGE = 'REDUX_ACTION_NEW_CHAT_MESSAGE';
 
 // actions
 export const setLogin = (login) => ({
@@ -108,12 +110,18 @@ export const callResponse = (data) => ({
     value: data
 });
 
+export const addChatMessage = (data) => ({
+    type: NEW_CHAT_MESSAGE,
+    value: data
+});
+
 // selectors
 const initialSelector = (state) => state.main;
 export const getLogin = (state) => initialSelector(state).login;
 export const isNewUser = (state) => initialSelector(state).isNewUser;
 export const getTableCards = (state) => initialSelector(state).tableCards;
 export const getInfoMessages = (state) => initialSelector(state).infoMessages;
+export const getChatMessages = (state) => initialSelector(state).chatMessages;
 
 export const getFirstPlayer = (state) => initialSelector(state).players.find(p => p.id !== getPlayerId()) || defaultPlayerData;
 
@@ -142,6 +150,15 @@ export const getPrizePool = (state) => initialSelector(state).prizePool;
 export const getCurrentPlayerId = (state) => initialSelector(state).currentPlayerId;
 
 const getPlayerById = (state, id) => state.players.find(p => p.id === id);
+const shuffle = (array) => {
+    if (array[0] && array[1]) {
+        const tmp = array[0];
+        array[0] = array[1];
+        array[1] = tmp;
+    }
+
+    return array;
+};
 
 const mainReducer = (state = initialState, action) => {
     switch (action.type) {
@@ -246,9 +263,10 @@ const mainReducer = (state = initialState, action) => {
         case INIT:
             return {
                 ...state,
+                chatMessages: action.value.messages,
                 prizePool: action.value.prizePool,
                 players: action.value.players,
-                isGameActive: action.value.status === 'active'
+                isGameActive: action.value.status === 'ACTIVE'
             };
         case NEW_PLAYER:
             return {
@@ -256,14 +274,20 @@ const mainReducer = (state = initialState, action) => {
                 players: [...state.players, action.value],
                 infoMessages: [...state.infoMessages,`${action.value.name} connected...` ]
             };
-        case PLAYER_DISCONNECTED:
+        case PLAYER_DISCONNECTED: {
             return {
                 ...state,
-                players: state.players.filter(p => p.id !== action.value.id),
-                infoMessages: [...state.infoMessages,`${action.value.name} disconnected...` ]
+                players: shuffle(state.players.map(p => {
+                    if (p.id === action.value.playerId) {
+                        p.status = 'DISCONNECTED';
+                    }
+
+                    return p;
+                })),
+                infoMessages: [...state.infoMessages, `${getPlayerById(state, action.value.playerId).name} disconnected...`]
             };
+        }
         case CALL:
-            debugger
             return {
                 ...state,
                 prizePool: action.value.prizePool,
@@ -280,6 +304,11 @@ const mainReducer = (state = initialState, action) => {
                     ...state.infoMessages,
                     `${getPlayerById(state, action.value.callPlayerId).name} called ${action.value.callPlayerBet}${action.value.allIn ? ' (all-in)' : ''}!`,
                 ]
+            };
+        case NEW_CHAT_MESSAGE:
+            return {
+                ...state,
+                chatMessages: [...state.chatMessages, action.value]
             };
         default: return state
     }

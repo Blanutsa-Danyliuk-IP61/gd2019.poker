@@ -9,7 +9,7 @@ import {
     init,
     newPlayer,
     playerDisconnected,
-    callResponse
+    callResponse, addChatMessage
 } from './redux/reducers/main';
 
 const sock = new SockJs(properties.websocketUrl);
@@ -33,6 +33,10 @@ export const fold = () => {
 
 export const startFirstRound = () => {
     stompClient.send('/app/startFirstRound');
+};
+
+export const sendChatMessage = (message) => {
+    stompClient.send('/app/message', [], JSON.stringify(message));
 };
 
 export const connectWS = () => {
@@ -62,6 +66,10 @@ export const connectWS = () => {
 
         stompClient.subscribe('/user/queue/call',  (res) => {
             storage.dispatch(callResponse(JSON.parse(res.body)));
+        });
+
+        stompClient.subscribe('/user/queue/message',  (res) => {
+            storage.dispatch(addChatMessage(JSON.parse(res.body)));
         });
     });
 };

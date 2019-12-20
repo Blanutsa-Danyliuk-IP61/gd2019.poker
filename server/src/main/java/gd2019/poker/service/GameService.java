@@ -1,22 +1,17 @@
 package gd2019.poker.service;
 
-import gd2019.poker.dto.ConnectRequest;
-import gd2019.poker.dto.StartGameResponse;
-import gd2019.poker.dto.StartRoundResponse;
-import gd2019.poker.model.enums.EventType;
+import gd2019.poker.dto.*;
 import gd2019.poker.model.Player;
 import gd2019.poker.model.enums.PlayerStatus;
 import gd2019.poker.model.Tournament;
-import gd2019.poker.dto.ResponseDTO;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.core.MessagePostProcessor;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -36,43 +31,6 @@ public class GameService {
         this.repository = repository;
         this.messagingTemplate = messagingTemplate;
     }
-
-//    public void handleResponse(ResponseDTO response){
-//        UUID id = response.getUserID();
-//        Player player = repository.getPlayerByID(id);
-//        EventType event = response.getEvent();
-//        Integer value = Integer.valueOf(response.getParameter());
-//        switch (event){
-//            case connected: {
-//                //handleConnected(player);
-//                break;
-//            }
-//            case disconnected: {
-//                handleDisconnected(player);
-//                break;
-//            }
-//            case fold: {
-//                handleFold(player);
-//                break;
-//            }
-//            case check: {
-//                handleCheck(player);
-//                break;
-//            }
-//            case raise: {
-//                handleRaise(player, value);
-//                break;
-//            }
-//            case bet: {
-//                handleBet(player, value);
-//                break;
-//            }
-//            case call: {
-//                handleCall(player);
-//                break;
-//            }
-//        }
-//    }
 
     public void handleConnected(ConnectRequest request, String sessionId){
         UUID id = UUID.fromString(request.getId());
@@ -107,20 +65,6 @@ public class GameService {
         tournament.start();
 
         sendDataToAll("startGame", tournament, StartGameResponse::fromPlayer);
-
-        handleStarFirstRound(tournament);
-    }
-
-    private void handleStarFirstRound(Tournament tournament) {
-        StartRoundResponse startRoundResponse = tournament.startNewRound();
-
-        for (Player player : tournament.getPlayers()) {
-            repository.addToSend(player.getSessionId(), startRoundResponse);
-        }
-    }
-
-    public void handleStartFirstRoundResponse(String sessionId) {
-        sendData("startRound", repository.getToSendBySessionId(sessionId), sessionId);
     }
 
     private void handleStartNewRound(Tournament tournament) {
@@ -132,17 +76,15 @@ public class GameService {
     public void handleDisconnected(String sessionId){
         Player player = repository.findPlayerBySessionId(sessionId);
 
-        player.setCurrentBid(0);
-        player.setCards(new ArrayList<>());
-        Tournament currentTournament = player.getCurrentTournament();
-        if (currentTournament != null) {
-            currentTournament.removeDisconnectedPlayer(player);
+        if (player != null) {
+            Tournament tournament = player.getCurrentTournament();
+            player.setStatus(PlayerStatus.DISCONNECTED);
 
-            if (currentTournament.getPlayers().size() == 0) {
-                repository.deleteTournament(currentTournament);
-            } else {
-                sendDataToAllExcludeOne("playerDisconnected", currentTournament, player.toDTO(), player.getSessionId());
-            }
+            DisconnectedResponse response = DisconnectedResponse.builder()
+                    .playerId(player.getId())
+                    .build();
+
+            sendDataToAllExcludeOne("playerDisconnected", tournament, response, player.getSessionId());
         }
     }
 
@@ -181,7 +123,7 @@ public class GameService {
     private void handleDisconnected(Player player){
         Tournament tournament = player.getCurrentTournament();
         tournament.removeDisconnectedPlayer(player);
-        player.setStatus(PlayerStatus.disconnected);
+        player.setStatus(PlayerStatus.DISCONNECTED);
         sendDataToUsers(tournament);
     }
 
@@ -245,5 +187,14 @@ public class GameService {
         headerAccessor.setLeaveMutable(true);
 
         return headerAccessor.getMessageHeaders();
+    }
+
+    public void handleNewChatMessage(String sessionId, ChatMessage message) {
+        Player player = repository.findPlayerBySessionId(sessionId);
+
+        Tournament currentTournament = player.getCurrentTournament();
+        currentTournament.addChatMessage(message);
+
+        sendDataToAll("message", currentTournament, message);
     }
 }
