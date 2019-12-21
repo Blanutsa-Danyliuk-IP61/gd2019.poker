@@ -3,13 +3,13 @@ import React, { Component } from 'react';
 import {Grid, withStyles} from '@material-ui/core';
 
 import { connect } from 'react-redux';
-import { getLogin, isNewUser } from '../../util/redux/reducers/main';
+import { getMessage, isMessageShown, isNewUser } from '../../util/redux/reducers/main';
 import { connectWS } from '../../util/websocket';
 
 import LoginInputDialog from '../../components/LoginInput';
 import GameArea from '../GameArea';
 import ChatAndInfoPanel from '../../components/ChatAndInfoPanel';
-import MessageDialog from "../../components/MessageDialog";
+import MessageDialog from '../../components/MessageDialog';
 
 const styles = {
     root: {
@@ -35,7 +35,7 @@ class Poker extends Component {
 
     render() {
 
-        const  {isNewUser, classes } = this.props;
+        const  { isNewUser, classes, isMessageShown, message } = this.props;
 
         return (
             <Grid container item xs={12} md={11} lg={10} className={classes.root}>
@@ -55,7 +55,7 @@ class Poker extends Component {
                 </Grid>
 
                 <LoginInputDialog open={isNewUser}/>
-                <MessageDialog open={false} text='The game begins'/>
+                <MessageDialog open={isMessageShown} text={message}/>
 
             </Grid>
         );
@@ -63,8 +63,9 @@ class Poker extends Component {
 }
 
 const mapStateToProps = state => ({
-    login: getLogin(state),
-    isNewUser: isNewUser(state)
+    isNewUser: isNewUser(state),
+    isMessageShown: isMessageShown(state),
+    message: getMessage(state)
 });
 
 export default connect(mapStateToProps)(withStyles(styles)(Poker));

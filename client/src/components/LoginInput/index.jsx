@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import { connect } from 'react-redux';
-import { setLogin } from '../../util/redux/reducers/main';
+import { nameEntered } from '../../util/redux/reducers/main';
 
 import { checkLogin } from '../../util/api';
 
@@ -16,7 +16,7 @@ function LoginInputDialog(props) {
     const [ showError, setShowError ] = useState(false);
 
     const handleSave = () => {
-       dispatch(setLogin(userName));
+       dispatch(nameEntered(userName));
     };
 
     const checkLoginIsUnique = (login) => {

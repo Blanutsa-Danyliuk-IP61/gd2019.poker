@@ -2,23 +2,24 @@ import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 
 import { Grid, Button, Typography, Slider } from '@material-ui/core';
-import Timer from '../Timer';
 
 import useStyles from './styles';
-import { getCurrentPlayerId, getPlayer } from '../../util/redux/reducers/main';
+import { getCurrentPlayerId, getMaxBid, getPlayer } from '../../util/redux/reducers/main';
 import Coins from '../../components/Coins';
 import { getPlayerId } from '../../util/localstorage';
-import { call, fold, check } from '../../util/websocket';
-
-const minBit = 5;
+import {call, fold, check, raise} from '../../util/websocket';
 
 const OptionPanel = (props) => {
 
     const classes = useStyles();
-    const { callbacks } = props;
 
-    const { balance, isCurrentPlayer } = props;
-    const [ bit, setBit ] = useState(minBit);
+    const { balance, isCurrentPlayer, player, maxBid } = props;
+    const [ bid, setBid ] = useState(maxBid);
+
+    const hasMoney = player.status !== 'ALL_IN' && player.status !== 'FOLDED' && player.balance > 0;
+    const canRaise = isCurrentPlayer && hasMoney && player.balance > maxBid;
+    const canCheck = isCurrentPlayer && hasMoney && player.bid === maxBid;
+    const canCall = isCurrentPlayer && hasMoney && player.balance >= maxBid && player.bid < maxBid;
 
     return (
         <Fragment>
@@ -28,7 +29,7 @@ const OptionPanel = (props) => {
                         variant='contained'
                         className={classes.btn}
                         onClick={() => check()}
-                        disabled={!isCurrentPlayer}
+                        disabled={!canCheck}
                     >
                         Check
                     </Button>
@@ -38,13 +39,10 @@ const OptionPanel = (props) => {
                         variant='contained'
                         className={classes.btn}
                         onClick={() => call()}
-                        disabled={!isCurrentPlayer}
+                        disabled={!canCall}
                     >
                         Call
                     </Button>
-                </Grid>
-                <Grid key='time' container item xs={4} justify='center'>
-                    <Timer />
                 </Grid>
             </Grid>
             <Grid key='middle' container item xs={12}>
@@ -53,7 +51,7 @@ const OptionPanel = (props) => {
                         variant='contained'
                         className={classes.btn}
                         onClick={() => fold()}
-                        disabled={!isCurrentPlayer}
+                        disabled={!isCurrentPlayer || !hasMoney}
                     >
                         Fold
                     </Button>
@@ -62,8 +60,8 @@ const OptionPanel = (props) => {
                     <Button
                         variant='contained'
                         className={classes.btn}
-                        onClick={() => callbacks.Deal('player')}
-                        disabled={!isCurrentPlayer}
+                        onClick={() => raise(bid)}
+                        disabled={!canRaise}
                     >
                         Raise
                     </Button>
@@ -71,28 +69,32 @@ const OptionPanel = (props) => {
             </Grid>
             <Grid key='bottom' container item xs={8} className={classes.btn}>
                 <Typography key='bid' className={classes.bit}>Bit</Typography>
-                <Coins key='coins'/>
-                <Typography key='balance' component='h6' className={classes.balance}>
-                    { bit }
-                </Typography>
+                { isCurrentPlayer && hasMoney ?
+                    <Fragment>
+                        <Coins key='coins'/>
+                        <Typography key='balance' component='h6' className={classes.balance}>
+                            { bid === -1 ? 0 : bid }
+                        </Typography>
+                    </Fragment> : ''
+                }
                 <Slider
                     key='slider'
                     className={classes.slider}
                     aria-label="custom thumb label"
-                    min={minBit}
+                    min={maxBid}
                     max={balance}
-                    disabled={!isCurrentPlayer}
+                    disabled={!isCurrentPlayer || !hasMoney}
                     marks={[
                         {
-                            value: minBit,
-                            label: minBit,
+                            value: maxBid,
+                            label: maxBid,
                         },
                         {
                             value: balance,
                             label: balance,
                         },
                     ]}
-                    onChange={(event, value) => setBit(value)}
+                    onChange={(event, value) => setBid(value)}
                     color='secondary'
                 />
             </Grid>
@@ -102,7 +104,9 @@ const OptionPanel = (props) => {
 
 const mapStateToProps = (state) => ({
     balance: getPlayer(state).balance,
-    isCurrentPlayer: getCurrentPlayerId(state) === getPlayerId()
+    isCurrentPlayer: getCurrentPlayerId(state) === getPlayerId(),
+    player: getPlayer(state),
+    maxBid: getMaxBid(state)
 });
 
 export default connect(mapStateToProps)(OptionPanel);

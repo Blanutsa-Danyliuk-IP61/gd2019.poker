@@ -12,3 +12,7 @@ export const getPlayerId = () => {
 
     return playerId;
 };
+
+export const deletePlayerId = () => {
+    localStorage.removeItem(PLAYER_ID_KEY);
+};

@@ -3,17 +3,27 @@ import properties from "../preperties";
 import SockJs from 'sockjs-client';
 import { checkUser } from './api';
 import storage from '../../src/index';
-import {
-    startNewGame,
-    startNewRound,
-    init,
-    newPlayer,
-    playerDisconnected,
-    callResponse, addChatMessage
-} from './redux/reducers/main';
 
 const sock = new SockJs(properties.websocketUrl);
 const stompClient = Stomp.over(sock);
+
+const update = (evenGroup) => {
+    if (evenGroup.hasOwnProperty('events')) {
+        for (let i = 0; i < evenGroup.events.length; i++) {
+            const event = evenGroup.events[i];
+
+            if (evenGroup.delay) {
+                setTimeout(() => {
+                    storage.dispatch(event);
+                }, 1000 * evenGroup.delay * i);
+            } else {
+                storage.dispatch(event);
+            }
+        }
+    } else {
+        storage.dispatch(evenGroup);
+    }
+};
 
 export const initConnection = (id, username) => {
     stompClient.send('/app/connect', {}, JSON.stringify({ id, username }));
@@ -31,8 +41,8 @@ export const fold = () => {
     stompClient.send('/app/fold');
 };
 
-export const startFirstRound = () => {
-    stompClient.send('/app/startFirstRound');
+export const raise = (bid) => {
+    stompClient.send('/app/raise', [], bid);
 };
 
 export const sendChatMessage = (message) => {
@@ -43,33 +53,8 @@ export const connectWS = () => {
     stompClient.connect({}, () => {
         checkUser();
 
-        stompClient.subscribe('/user/queue/init',  (res) => {
-            storage.dispatch(init(JSON.parse(res.body)));
-        });
-
-        stompClient.subscribe('/user/queue/newPlayer',  (res) => {
-            storage.dispatch(newPlayer(JSON.parse(res.body)));
-        });
-
-        stompClient.subscribe('/user/queue/playerDisconnected',  (res) => {
-            storage.dispatch(playerDisconnected(JSON.parse(res.body)));
-        });
-
-        stompClient.subscribe('/user/queue/startGame',  (res) => {
-            storage.dispatch(startNewGame(JSON.parse(res.body)));
-            startFirstRound();
-        });
-
-        stompClient.subscribe('/user/queue/startRound',  (res) => {
-            storage.dispatch(startNewRound(JSON.parse(res.body)));
-        });
-
-        stompClient.subscribe('/user/queue/call',  (res) => {
-            storage.dispatch(callResponse(JSON.parse(res.body)));
-        });
-
-        stompClient.subscribe('/user/queue/message',  (res) => {
-            storage.dispatch(addChatMessage(JSON.parse(res.body)));
+        stompClient.subscribe('/user/queue/update',  (res) => {
+            update(JSON.parse(res.body));
         });
     });
 };

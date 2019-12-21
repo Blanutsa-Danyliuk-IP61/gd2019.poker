@@ -21,13 +21,17 @@ const useStyles = makeStyles({
     status: {
         display: 'inline-box',
         fontSize: '1em',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        color: '#000000'
     },
     statusContainer: {
         position: 'absolute',
         top: '33%',
         marginLeft: 'auto',
         marginRight: 'auto',
+        padding: '10px 15px',
+        backgroundColor: '#ffffff',
+        borderRadius: '10px'
     },
     cardContainer: {
         height: '100%',

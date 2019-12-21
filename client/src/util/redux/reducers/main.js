@@ -1,123 +1,67 @@
 import { getPlayerId } from '../../localstorage';
 import { initConnection } from '../../websocket';
+import store from '../../../index';
+import {checkUser} from "../../api";
 
 const defaultPlayerData = {
     cards: [{}, {}]
 };
 
+// show message time in seconds
+const SHOW_MESSAGE_TIME = 3;
+const DELETE_DATA_DELAY = 10;
+
 const initialState = {
-    login: null,
     isNewUser: false,
     prizePool: 0,
     tableCards: [],
     infoMessages: [],
     players: [],
-    isGameActive: false,
+    gameStatus: 'WAITING',
     currentPlayerId: null,
-    chatMessages: []
+    chatMessages: [],
+    messageShown: false,
+    message: null
 };
 
 // actions types
-const SET_LOGIN = 'REDUX_ACTION_SET_LOGIN';
-const NEW_USER = 'REDUX_ACTION_NEW_USER';
-const ADD_TABLE_CARDS = 'ADD_TABLE_CARDS';
-const ADD_INFO_MESSAGE = 'REDUX_ACTION_ADD_INFO_MESSAGE';
-const ADD_PLAYER = 'REDUX_ACTION_ADD_PLAYER';
-const REMOVE_PLAYER = 'REDUX_ACTION_REMOVE_PLAYER';
-const SET_PLAYERS = 'REDUX_ACTION_SET_PLAYERS';
-const SET_IS_GAME_ACTIVE = 'REDUX_ACTION_SET_IS_GAME_ACTIVE';
-const SET_PRIZE_POOL = 'REDUX_ACTION_SET_PRIZE_POOL';
-const START_NEW_GAME = 'REDUX_ACTION_START_NEW_GAME';
-const START_NEW_ROUND = 'REDUX_ACTION_START_NEW_ROUND';
-const INIT = 'REDUX_ACTION_INIT';
-const NEW_PLAYER = 'REDUX_ACTION_NEW_PLAYER';
-const PLAYER_DISCONNECTED = 'REDUX_ACTION_PLAYER_DISCONNECTED';
-const CALL = 'REDUX_ACTION_CALL';
-const NEW_CHAT_MESSAGE = 'REDUX_ACTION_NEW_CHAT_MESSAGE';
+const SET_MESSAGE = 'SET_MESSAGE';
+const HIDE_MESSAGE = 'HIDE_MESSAGE';
+const NEW_USER = 'NEW_USER';
+const NAME_ENTERED = 'REDUX_ACTION_NAME_ENTERED';
+const START_GAME = 'START_GAME';
+const NEW_ROUND = 'NEW_ROUND';
+const INIT = 'INIT';
+const DISCONNECTED = 'DISCONNECTED';
+const CONNECTED = 'CONNECTED';
+const RECONNECTED = 'RECONNECTED';
+const CHAT_MESSAGE = 'CHAT_MESSAGE';
+const CHAMPION = 'CHAMPION';
+const BID_RESULT = 'BID_RESULT';
+const NEXT_BID = 'NEXT_BID';
+const MATCH_RESULT = 'MATCH_RESULT';
+const DELETE_DATA = 'DELETE_DATA';
 
 // actions
-export const setLogin = (login) => ({
-    type: SET_LOGIN,
-    value: login
-});
-
 export const newUser = () => ({
     type: NEW_USER
 });
 
-export const addTableCard = (cards) => ({
-    type: ADD_TABLE_CARDS,
-    value: cards
+export const nameEntered = (name) => ({
+    type: NAME_ENTERED,
+    value: name
 });
 
-export const addInfoMessage = (messages) => ({
-    type: ADD_INFO_MESSAGE,
-    value: messages
+const hideMessage = () => ({
+    type: HIDE_MESSAGE
 });
 
-export const addPlayer = (player) => ({
-    type: ADD_PLAYER,
-    value: player
-});
-
-export const removePlayer = (playerId) => ({
-    type: REMOVE_PLAYER,
-    value: playerId
-});
-
-export const setPlayers = (players) => ({
-    type: SET_PLAYERS,
-    value: players
-});
-
-export const setIsGameActive = (value) => ({
-    type: SET_IS_GAME_ACTIVE,
-    value
-});
-
-export const setPrizePool = (pool) => ({
-    type: SET_PRIZE_POOL,
-    value: pool
-});
-
-export const startNewGame = (data) => ({
-    type: START_NEW_GAME,
-    value: data
-});
-
-export const startNewRound = (data) => ({
-    type: START_NEW_ROUND,
-    value: data
-});
-
-export const init = (data) => ({
-    type: INIT,
-    value: data
-});
-
-export const newPlayer = (data) => ({
-    type: NEW_PLAYER,
-    value: data
-});
-
-export const playerDisconnected = (data) => ({
-    type: PLAYER_DISCONNECTED,
-    value: data
-});
-
-export const callResponse = (data) => ({
-    type: CALL,
-    value: data
-});
-
-export const addChatMessage = (data) => ({
-    type: NEW_CHAT_MESSAGE,
-    value: data
+const deleteData = () => ({
+    type: DELETE_DATA
 });
 
 // selectors
 const initialSelector = (state) => state.main;
-export const getLogin = (state) => initialSelector(state).login;
 export const isNewUser = (state) => initialSelector(state).isNewUser;
 export const getTableCards = (state) => initialSelector(state).tableCards;
 export const getInfoMessages = (state) => initialSelector(state).infoMessages;
@@ -144,174 +88,214 @@ export const getSecondPlayer = (state) => {
 
 export const getPlayer = (state) => initialSelector(state).players.find(p => p.id === getPlayerId()) || defaultPlayerData;
 
-export const isGameActive = (state) => initialSelector(state).isGameActive;
+export const isGameActive = (state) => initialSelector(state).gameStatus === 'ACTIVE';
 export const getPlayers = (state) => initialSelector(state).players;
 export const getPrizePool = (state) => initialSelector(state).prizePool;
 export const getCurrentPlayerId = (state) => initialSelector(state).currentPlayerId;
+export const isMessageShown = (state) => initialSelector(state).messageShown;
+export const getMessage = (state) => initialSelector(state).message;
 
-const getPlayerById = (state, id) => state.players.find(p => p.id === id);
-const shuffle = (array) => {
-    if (array[0] && array[1]) {
-        const tmp = array[0];
-        array[0] = array[1];
-        array[1] = tmp;
+export const getMaxBid = (state) => {
+    let players = initialSelector(state).players;
+    let max = -1;
+
+    for (let i = 0; i < players.length; i++) {
+        if (players[i].bid > max) {
+            max = players[i].bid;
+        }
     }
 
-    return array;
+    return max;
 };
 
+export const finished = (state) => initialSelector(state).gameStatus === 'FINISHED';
+
+// reducer
 const mainReducer = (state = initialState, action) => {
     switch (action.type) {
-        case SET_LOGIN:
+        case NAME_ENTERED:
             initConnection(getPlayerId(), action.value);
 
             return {
                 ...state,
-                login: action.value,
                 isNewUser: false
-            };
-        case SET_PRIZE_POOL:
-            return {
-                ...state,
-                prizePool: action.value
             };
         case NEW_USER:
             return {
                 ...state,
                 isNewUser: true
             };
-        case ADD_TABLE_CARDS:
-            return {
-                ...state,
-                tableCards: [...state.tableCards, ...action.value]
-            };
-        case ADD_INFO_MESSAGE:
-            return {
-                ...state,
-                infoMessages: [...state.infoMessages, action.value]
-            };
-        case ADD_PLAYER:
-            return {
-                ...state,
-                players: [...state.players, action.value]
-            };
-        case REMOVE_PLAYER:
-            return {
-                ...state,
-                players: state.players.filter(p => p.id !== action.value)
-            };
-        case SET_PLAYERS:
-            return {
-                ...state,
-                players: action.value
-            };
-        case SET_IS_GAME_ACTIVE:
-            return {
-                ...state,
-                isGameActive: action.value
-            };
-        case START_NEW_GAME:
-            const playerId = getPlayerId();
+        case START_GAME: {
+            hideMessageWithDelay();
 
             return {
                 ...state,
-                isGameActive: true,
+                gameStatus: 'ACTIVE',
                 infoMessages: [...state.infoMessages, 'The game begins!'],
-                players: state.players.map(p => {
-                    p.balance = action.value.defaultBalance;
-
-                    if (p.id === playerId) {
-                        p.cards = action.value.cards;
-                    } else {
-                        p.cards = [{}, {}];
-                    }
-
-                    return p;
-                })
+                players: action.players,
+                prizePool: 0,
+                tableCards: [],
+                currentPlayerId: null,
+                messageShown: true,
+                message:'The game begins!'
             };
-        case START_NEW_ROUND:
-            const smallBlind = action.value.smallBlind;
-            const bigBlind = action.value.bigBlind;
+        }
+        case NEW_ROUND:
+            hideMessageWithDelay();
 
-            const smallBlindPlayer = getPlayerById(state, smallBlind.playerId);
-            const bigBlindPlayer = getPlayerById(state, bigBlind.playerId);
+            const infos = state.infoMessages;
+            infos.push(`Round ${action.round} begins!`);
+            if (action.round === 1) {
+                const smallBlind = action.smallBlind;
+                const bigBlind = action.bigBlind;
+
+                const smallBlindPlayer = getPlayerById(state, smallBlind.playerId);
+                const bigBlindPlayer = getPlayerById(state, bigBlind.playerId);
+
+                infos.push(`${smallBlindPlayer.name} bid ${smallBlind.blind} - (${smallBlind.type.toLowerCase()} blind)!`);
+                infos.push(`${bigBlindPlayer.name} bid ${bigBlind.blind} - (${bigBlind.type.toLowerCase()} blind)!`);
+            }
 
             return {
                 ...state,
-                prizePool: action.value.prizePool,
-                currentPlayerId: action.value.currentPlayerId,
-                players: state.players.map(p => {
-                    if (p.id === smallBlind.playerId) {
-                        p.bid = smallBlind.blind;
-                        p.balance = smallBlind.balance;
-                    }
-
-                    if (p.id === bigBlind.playerId) {
-                        p.bid = bigBlind.blind;
-                        p.balance = bigBlind.balance;
-                    }
-
-                    return p;
-                }),
-                infoMessages: [
-                    ...state.infoMessages,
-                    `Round ${action.value.roundIndex} begins!`,
-                    `${smallBlindPlayer.name} bid ${smallBlind.blind} - (${smallBlind.type.toLowerCase()} blind)!`,
-                    `${bigBlindPlayer.name} bid ${bigBlind.blind} - (${bigBlind.type.toLowerCase()} blind)!`
-                ]
+                prizePool: action.prizePool,
+                currentPlayerId: action.currentPlayerId,
+                players: action.players,
+                infoMessages: infos,
+                tableCards: action.tableCards,
+                messageShown: true,
+                message: `Round ${action.round} begins!`
             };
         case INIT:
             return {
                 ...state,
-                chatMessages: action.value.messages,
-                prizePool: action.value.prizePool,
-                players: action.value.players,
-                isGameActive: action.value.status === 'ACTIVE'
+                chatMessages: action.tournament.messages,
+                prizePool: action.tournament.prizePool,
+                players: action.tournament.players,
+                gameStatus: action.tournament.status,
+                currentPlayerId: action.tournament.currentPlayerId,
+                tableCards: action.tournament.tableCards
             };
-        case NEW_PLAYER:
-            return {
-                ...state,
-                players: [...state.players, action.value],
-                infoMessages: [...state.infoMessages,`${action.value.name} connected...` ]
-            };
-        case PLAYER_DISCONNECTED: {
-            return {
-                ...state,
-                players: shuffle(state.players.map(p => {
-                    if (p.id === action.value.playerId) {
-                        p.status = 'DISCONNECTED';
-                    }
+        case DISCONNECTED: {
+            const players = state.players;
 
-                    return p;
-                })),
-                infoMessages: [...state.infoMessages, `${getPlayerById(state, action.value.playerId).name} disconnected...`]
+            for (let i = 0; i < players.length; i++) {
+                if (players[i].id === action.disconnectedPlayer.id) {
+                    players[i] = action.disconnectedPlayer;
+                }
+            }
+
+            return {
+                ...state,
+                players,
+                infoMessages: [...state.infoMessages, `${action.disconnectedPlayer.name} disconnected...`]
             };
         }
-        case CALL:
+        case CONNECTED: {
+            const players = state.players;
+
+            let exists = false;
+            for (let i = 0; i < players.length; i++) {
+                if (players[i].id === action.connectedPlayer.id) {
+                    exists = true;
+                    players[i] = action.connectedPlayer;
+                }
+            }
+
+            if (!exists) {
+                players.push(action.connectedPlayer);
+            }
+
             return {
                 ...state,
-                prizePool: action.value.prizePool,
-                currentPlayerId: action.value.currentPlayerId,
-                players: state.players.map(p => {
-                    if (p.id === action.value.callPlayerId) {
-                        p.balance = action.value.callPlayerBalance;
-                        p.bid = action.value.callPlayerBet;
-                    }
+                players,
+                infoMessages: [...state.infoMessages, `${action.connectedPlayer.name} connected...`]
+            };
+        }
+        case RECONNECTED: {
+            const players = state.players;
 
-                    return p;
-                }),
+            for (let i = 0; i < players.length; i++) {
+                if (players[i].id === action.reconnectedPlayer.id) {
+                    players[i] = action.reconnectedPlayer;
+                }
+            }
+
+            return {
+                ...state,
+                players,
+                infoMessages: [...state.infoMessages, `${action.reconnectedPlayer.name} reconnected...`]
+            };
+        }
+        case CHAT_MESSAGE:
+            return {
+                ...state,
+                chatMessages: [...state.chatMessages, action.message]
+            };
+        case SET_MESSAGE:
+            return {
+                ...state,
+                messageShown: true,
+                message: action.message
+            };
+        case HIDE_MESSAGE:
+            return {
+                ...state,
+                messageShown: false,
+                message: null
+            };
+        case CHAMPION: {
+            deleteDataWithDelay();
+
+            return {
+                ...state,
+                currentPlayerId: null,
+                gameStatus: 'FINISHED',
+                messageShown: true,
+                infoMessages: [...state.infoMessages, `${action.championPlayer.name} won!`],
+                message: `${action.championPlayer.name} won!`
+            };
+        }
+        case BID_RESULT:
+            return {
+                ...state,
+                prizePool: action.prizePool,
+                currentPlayerId: null,
+                players: state.players.map(p => p.id === action.player.id ? action.player : p),
                 infoMessages: [
                     ...state.infoMessages,
-                    `${getPlayerById(state, action.value.callPlayerId).name} called ${action.value.callPlayerBet}${action.value.allIn ? ' (all-in)' : ''}!`,
+                    `${action.player.name} bid ${action.bid} - (${action.bitType.toLowerCase()})!`
                 ]
             };
-        case NEW_CHAT_MESSAGE:
+        case NEXT_BID:
             return {
                 ...state,
-                chatMessages: [...state.chatMessages, action.value]
+                currentPlayerId: action.nextPlayerId
             };
+        case MATCH_RESULT: {
+            deleteDataWithDelay();
+
+            return {
+                ...state,
+                currentPlayerId: null,
+                gameStatus: 'FINISHED',
+                messageShown: true,
+                message: `${action.champion.name} won! (${action.champion.handType})`
+            };
+        }
+        case DELETE_DATA: {
+            return initialState;
+        }
         default: return state
     }
 };
+
+// utils
+const getPlayerById = (state, id) => state.players.find(p => p.id === id);
+const hideMessageWithDelay = () => setTimeout(() => store.dispatch(hideMessage()), 1000 * SHOW_MESSAGE_TIME);
+const deleteDataWithDelay = () => setTimeout(() => {
+    deleteData();
+    checkUser();
+}, 1000 * DELETE_DATA_DELAY);
 
 export default mainReducer;

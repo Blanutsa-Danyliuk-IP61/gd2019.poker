@@ -6,10 +6,11 @@ import PlayerPanel from '../PlayerPanel';
 import Table from '../Table';
 import OptionPanel from '../OptionsPanel';
 import {
+    finished,
     getCurrentPlayerId,
     getFirstPlayer,
     getPlayer,
-    getSecondPlayer,
+    getSecondPlayer, getTableCards,
     isGameActive
 } from '../../util/redux/reducers/main';
 
@@ -35,7 +36,7 @@ const styles = {
 class GameArea extends Component {
 
     render() {
-        const {player, firstPlayer, secondPlayer, isGameActive, currentPlayerId, classes} = this.props;
+        const { player, firstPlayer, secondPlayer, isGameActive, currentPlayerId, classes, tableCards, finished } = this.props;
 
         return (
             <Grid container item xs={12} className={classes.root}>
@@ -43,18 +44,18 @@ class GameArea extends Component {
                       className={classes.tableContainer}>
                     <Grid key='player-2' item xs={3}>
                         <PlayerPanel
-                            shown={false}
+                            shown={finished}
                             playerData={firstPlayer}
                             isGameActive={isGameActive}
                             currentPlayerId={currentPlayerId}
                         />
                     </Grid>
                     <Grid key='table' item container xs={5} direction='column' justify='center'>
-                        <Table cards={[]}/>
+                        <Table cards={tableCards}/>
                     </Grid>
                     <Grid key='player-3' item xs={3}>
                         <PlayerPanel
-                            shown={false}
+                            shown={finished}
                             playerData={secondPlayer}
                             isGameActive={isGameActive}
                             currentPlayerId={currentPlayerId}
@@ -91,7 +92,9 @@ const mapStateToProps = (state) => ({
     secondPlayer: getSecondPlayer(state),
     player: getPlayer(state),
     isGameActive: isGameActive(state),
-    currentPlayerId: getCurrentPlayerId(state)
+    currentPlayerId: getCurrentPlayerId(state),
+    tableCards: getTableCards(state),
+    finished: finished(state)
 });
 
 export default connect(mapStateToProps)(withStyles(styles)(GameArea));

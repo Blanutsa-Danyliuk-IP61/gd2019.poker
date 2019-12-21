@@ -10,7 +10,7 @@ const PlayerPanel = (props) => {
 
     const classes = useStyles();
     const { shown, isGameActive, currentPlayerId } = props;
-    const { name, balance, id, status, cards } = props.playerData;
+    const { name, balance, id, status, cards, active } = props.playerData;
 
     const current = currentPlayerId === id;
 
@@ -23,17 +23,19 @@ const PlayerPanel = (props) => {
                     </Typography>
                 </Grid>
                 <Grid item container xs={6} justify='center'>
-                    <div>
+                    <Grid item key='coins'>
                         <Coins/>
+                    </Grid>
+                    <Grid item key='balance'>
                         <Typography component='h6' className={classes.balance}>
                             { balance || 0 }
                         </Typography>
-                    </div>
+                    </Grid>
                 </Grid>
             </Grid>
             <Grid item container xs={12} justify='space-around' className={classes.cardContainer}
                 style={{
-                    opacity: status === 'FOLDED' || status === 'DISCONNECTED' ? '0.8' : '1'
+                    opacity: status === 'FOLDED' || status === 'DISCONNECTED' ? '0.5' : '1'
                 }}
             >
                 { isGameActive && name ?
@@ -54,20 +56,20 @@ const PlayerPanel = (props) => {
                 }
 
                 {
-                    status === 'FOLDED' ?
+                    active && status === 'FOLDED' ?
                         <Grid item className={classes.statusContainer}>
                             <Typography component='h6' className={classes.status}>Folded</Typography>
                         </Grid> : ''
                 }
 
                 {
-                    status === 'DISCONNECTED' ?
+                    name && !active ?
                         <Grid item className={classes.statusContainer}>
                             <Typography component='h6' className={classes.status}>Disconnected</Typography>
                         </Grid> : ''
                 }
 
-            </Grid>
+            </Grid> 
         </Grid>
     );
 };
