@@ -29,12 +29,17 @@ public class WebsocketController {
 
     @MessageMapping("/check")
     public void check(@Header("simpSessionId") String sessionId) {
-        this.gameService.handleCall(sessionId);
+        this.gameService.handleCheck(sessionId);
     }
 
     @MessageMapping("/fold")
     public void fold(@Header("simpSessionId") String sessionId) {
-        this.gameService.handleCall(sessionId);
+        this.gameService.handleFold(sessionId);
+    }
+
+    @MessageMapping("/raise")
+    public void raise(@Payload int bid, @Header("simpSessionId") String sessionId) {
+        this.gameService.handleRaise(sessionId, bid);
     }
 
     @MessageMapping("/message")

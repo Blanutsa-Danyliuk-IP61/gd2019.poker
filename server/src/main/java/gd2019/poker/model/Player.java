@@ -5,9 +5,11 @@ import gd2019.poker.dto.PlayerDTO;
 import gd2019.poker.model.enums.PlayerStatus;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 public class Player {
@@ -21,9 +23,11 @@ public class Player {
     private int currentBalance = Tournament.DEFAULT_BALANCE;
     private int currentBid;
     private Integer prize;
-    private List<ClassicCard> cards;
+    private List<ClassicCard> cards = new ArrayList<>();
     private PokerHandResult handResult;
     private String sessionId;
+    private boolean active = true;
+    private boolean madeBetInRound;
 
     public Player(UUID id, String name){
         this.id = id;
@@ -54,6 +58,13 @@ public class Player {
                 .balance(currentBalance)
                 .bid(currentBid)
                 .status(status)
+                .cards(cards.stream().map(ClassicCard::toDTO).collect(Collectors.toList()))
+                .active(active)
+                .handType(handResult != null ? handResult.getType() : null)
                 .build();
+    }
+
+    public boolean isNotFold() {
+        return !status.equals(PlayerStatus.FOLDED);
     }
 }

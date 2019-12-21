@@ -7,9 +7,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author Mykola Danyliuk
- */
 public class DeckOfCards {
 
     private List<ClassicCard> allCards;

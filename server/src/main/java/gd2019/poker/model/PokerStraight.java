@@ -5,16 +5,8 @@ import gd2019.poker.model.enums.Rank;
 
 import java.util.Map;
 
-/**
- * Checks for a normal STRAIGHT. Returns null if no straight was found
- */
 public class PokerStraight implements PokerHandResultProducer {
 
-    /**
-     * Scans an array of ints to search for sequence of 1s. Can fill in gaps by using wildcards
-     * @param rankQuantities An array of the ranks provided by {@link PokerHandAnalyze}
-     * @return The highest rank (index + 1) for which the straight started
-     */
     public static int findHighestIndexForStraight(Map<Rank,Integer> rankQuantities) {
         return findHighestIndexForStraight(rankQuantities, Rank.values().length - 1);
     }

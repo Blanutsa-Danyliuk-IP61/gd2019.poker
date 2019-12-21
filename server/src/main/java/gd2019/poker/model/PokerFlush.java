@@ -6,9 +6,6 @@ import gd2019.poker.model.enums.Suit;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Checks for FLUSH, ROYAL_FLUSH and STRAIGHT_FLUSH. Depends on {@link PokerStraight} for the straight analyze.
- */
 public class PokerFlush implements PokerHandResultProducer {
 
     private final PokerHandResultProducer straight = new PokerStraight();

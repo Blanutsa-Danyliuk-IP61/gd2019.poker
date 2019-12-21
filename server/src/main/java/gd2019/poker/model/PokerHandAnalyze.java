@@ -6,9 +6,6 @@ import gd2019.poker.model.enums.Suit;
 
 import java.util.*;
 
-/**
- * A helper class to analyze ranks and suits for an array of {@link ClassicCard}s. Create new using the static method {@link #analyze(ClassicCard...)}
- */
 public class PokerHandAnalyze {
 
     private Map<Rank, Integer> rankQuantities;
@@ -28,11 +25,7 @@ public class PokerHandAnalyze {
             suiteQuantities.put(suit, 0);
         }
     }
-    /**
-     * Create a new instance and analyze the provided cards
-     * @param cards The cards to analyze
-     * @return Organized analyze of the provided cards
-     */
+
     public static PokerHandAnalyze analyze(ClassicCard... cards) {
         PokerHandAnalyze hand = new PokerHandAnalyze(cards);
         for (ClassicCard card : cards) {
@@ -62,11 +55,7 @@ public class PokerHandAnalyze {
     public int size() {
         return cards.length;
     }
-    /**
-     * Create a sub-analyze which only includes wildcards and the specified suite. Useful to check for the FLUSH {@link PokerHandType}
-     * @param suit The suite to filter by
-     * @return A new analyze object
-     */
+
     public PokerHandAnalyze filterBySuite(Suit suit) {
         List<ClassicCard> cards = new ArrayList<>();
         for (ClassicCard card : this.cards) {

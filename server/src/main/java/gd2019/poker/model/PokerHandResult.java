@@ -6,9 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Data for a found poker hand. Provides data for the type of poker hand, the primary rank and secondary rank, and kickers. Including methods for sorting. Also implements hashCode and equals.
- */
 public class PokerHandResult implements Comparable<PokerHandResult> {
 
     private final PokerHandType type;
@@ -27,7 +24,6 @@ public class PokerHandResult implements Comparable<PokerHandResult> {
         this.kickers = kickers(cards, new int[]{ primaryRank, secondaryRank }, numKickers);
         Arrays.sort(this.kickers);
     }
-
 
     @Override
     public int hashCode() {
@@ -85,11 +81,7 @@ public class PokerHandResult implements Comparable<PokerHandResult> {
     public PokerHandType getType() {
         return type;
     }
-    /**
-     * Return the best {@link PokerHandResult} of a list of results. The method first orders the list and then returns the last result.
-     * @param results A list of PokerHandResults
-     * @return The best result from the list
-     */
+
     public static PokerHandResult returnBest(List<PokerHandResult> results) {
         if (results.isEmpty())
             return null;
@@ -97,13 +89,6 @@ public class PokerHandResult implements Comparable<PokerHandResult> {
         return results.get(results.size() - 1);
     }
 
-    /**
-     * Create an integer array of "kickers", to separate FOUR_OF_A_KIND with Ace-kicker vs. King-kicker
-     * @param cards The cards in your hand. If null, an empty array will be returned
-     * @param skip Ranks that will be skipped (for example, if you have a pair of 4s then you can skip those 4s)
-     * @param count How many kickers that should be included. This should ideally be 5 - number of cards required for the {@link PokerHandType} the kickers are provided for
-     * @return An array of the ranks that will be used as kickers. Wildcards and the ranks in the skip array are excluded
-     */
     private static int[] kickers(ClassicCard[] cards, int[] skip, int count) {
         if (cards == null)
             return new int[]{};

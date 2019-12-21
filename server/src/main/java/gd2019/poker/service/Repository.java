@@ -1,17 +1,14 @@
 package gd2019.poker.service;
 
-import gd2019.poker.dto.StartRoundResponse;
+import gd2019.poker.model.Player;
 import gd2019.poker.model.Tournament;
 import gd2019.poker.model.enums.TournamentStatus;
-import gd2019.poker.model.Player;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-/**
- * @author Mykola Danyliuk
- */
 @Component
 public class Repository {
 

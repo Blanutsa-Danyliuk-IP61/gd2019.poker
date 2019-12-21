@@ -8,9 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Checks for PAIR, THREE_OF_A_KIND, FOUR_OF_A_KIND, and FULL_HOUSE. Returns HIGH_CARD if nothing better was found.
- */
 public class PokerPair implements PokerHandResultProducer {
 
     @Override
