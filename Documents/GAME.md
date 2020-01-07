@@ -17,13 +17,13 @@
 При першому завантаженні сторінки з грою, гравець має ввести бажане ім&#39;я, яке перевіряється на унікальність та у разі наявності гравця з таким самим іменем виводиться відповідне повідомлення.
 
 <p align="center">
-   <img width="460" src="//https://github.com/Blanutsa-Danyliuk-IP61/gd2019.poker/tree/master/Documents/reg-form.png?raw=true">
+   <img width="460" src="https://github.com/Blanutsa-Danyliuk-IP61/gd2019.poker/blob/master/Documents/reg-form.PNG?raw=true">
  </p>
  
 Гравець додається до вже створеного столу або створюється новий. Коли стіл заповнений гра автоматично починається. На початку гри кожному гравцю дається по 1000 монет. Після закінчення гри через певну кількість секунд створюється новий стіл та гра починається знову. Якщо гравець випадково закриє сторінку, а потім знову зайде на сайт то всі дані відновляться. А опоненти отримають повідомлення про відключення та перепідключення гравця.
 
 <p align="center">
-   <img width="460" src="//https://github.com/Blanutsa-Danyliuk-IP61/gd2019.poker/tree/master/Documents/player-interface.png?raw=true">
+   <img width="460" src="https://github.com/Blanutsa-Danyliuk-IP61/gd2019.poker/blob/master/Documents/player-interface.png?raw=true">
  </p>
 
 Інтерфейс користувача
@@ -77,7 +77,7 @@ Controller - це серверна частина, яка передає дії 
  Рішення в покері складні і залежать від безлічі параметрів і атрибутів. Ми можемо візуалізувати процес прийняття рішень у вигляді дерева рішень, де кінцеві вузли - це прийняті рішення, а гілки - різні умови. Ось спрощений приклад такого дерева покерних рішень:
  
  <p align="center">
-   <img width="460" src="//https://github.com/Blanutsa-Danyliuk-IP61/gd2019.poker/tree/master/Documents/poker-decision-tree.png?raw=true">
+   <img width="460" src="https://github.com/Blanutsa-Danyliuk-IP61/gd2019.poker/blob/master/Documents/poker-decision-tree.png?raw=true">
  </p>
 
 #
